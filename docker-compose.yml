@@ -1,0 +1,37 @@
+
+
+services:
+  db:
+    image: postgres:15
+    container_name: rf-spectrum-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rfintel
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: rf-spectrum-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/rfintel
+      - RF_MODE=replay
+      - MQTT_ENABLED=true
+      - MQTT_BROKER=4ae6790b1c6d420ba90577449bfdb323.s1.eu.hivemq.cloud
+      - MQTT_PORT=8883
+      - MQTT_CLIENT_ID=rf-spectrum-hunter-cloud
+      - MQTT_USERNAME=rfadmin
+      - MQTT_PASSWORD=RfIntel@2026
+      - WEBHOOK_ALERT_URL=https://discord.com/api/webhooks/1509689983664128181/8fJ724qiECPIB3UQvfrJ2cJUu7iPlI9t60tm5pwaIxGxKT8BSrx_cVLNVd3QPYAbX_2k
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

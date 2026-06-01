@@ -205,3 +205,25 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# RF State and Cache Data
+rf_state.json
+rf_history.json
+active_model.json
+backend/active_model.json
+.system_generated/
+
+# Large Datasets and Processed Sensor Data
+real_rf_dataset/
+real_data_pipeline/
+dataset/
+oracle_transfer/
+
+# Live Runtime and Telemetry Cache
+live_runtime/
+
+# MS Office Temporary Files
+~$*
+
+# Large ML models (>100MB) not suited for standard Git
+models/knn_model.pkl
