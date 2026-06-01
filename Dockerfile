@@ -26,13 +26,13 @@ COPY models/ /app/models/
 # Create the live_runtime directory for state caching and local persistence
 RUN mkdir -p /app/live_runtime
 
-# Expose the API port (Hugging Face Spaces expects port 7860)
-EXPOSE 7860
+# Expose the API port
+EXPOSE 8000
 
 # Set environment variable defaults
 ENV RF_MODE=replay
-ENV API_PORT=7860
+ENV API_PORT=8000
 ENV API_HOST=0.0.0.0
 
 # Start the FastAPI server using uvicorn
-CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
