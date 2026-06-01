@@ -214,7 +214,8 @@ backend/active_model.json
 .system_generated/
 
 # Large Datasets and Processed Sensor Data
-real_rf_dataset/
+real_rf_dataset/*
+!real_rf_dataset/processed.zip
 real_data_pipeline/
 dataset/
 oracle_transfer/

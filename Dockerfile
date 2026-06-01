@@ -17,11 +17,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code, edge runtime, simulation, and models
+# Copy source code, edge runtime, simulation, models, and real datasets
 COPY backend/ /app/backend/
 COPY edge/ /app/edge/
 COPY simulation/ /app/simulation/
 COPY models/ /app/models/
+COPY real_rf_dataset/ /app/real_rf_dataset/
 
 # Create the live_runtime directory for state caching and local persistence
 RUN mkdir -p /app/live_runtime

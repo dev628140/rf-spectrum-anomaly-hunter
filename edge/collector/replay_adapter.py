@@ -14,6 +14,18 @@ class ReplayAdapter:
 
         # Attempt to load from directory, catch FileNotFoundError gracefully
         try:
+            # Auto-extract processed.zip if present and unzipped directories are missing
+            zip_path = os.path.join(os.path.dirname(self.dataset_root), "processed.zip")
+            if (not os.path.exists(self.normal_dir) or not os.path.exists(self.anomaly_dir)) and os.path.exists(zip_path):
+                print(f"[ReplayAdapter] Unzipped directories missing. Extracting dataset from {zip_path}...")
+                import zipfile
+                try:
+                    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                        zip_ref.extractall(self.dataset_root)
+                    print("[ReplayAdapter] Dataset successfully extracted.")
+                except Exception as zip_err:
+                    print(f"[ReplayAdapter] Error extracting processed.zip: {zip_err}")
+
             if not os.path.exists(self.normal_dir) or not os.path.exists(self.anomaly_dir):
                 raise FileNotFoundError("Replay directories do not exist")
 
