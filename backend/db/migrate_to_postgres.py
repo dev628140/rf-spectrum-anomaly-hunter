@@ -121,6 +121,17 @@ def migrate():
 
         # Commit transaction
         pg_session.commit()
+
+        # --- E. Reset PostgreSQL Sequence Generators (CRITICAL) ---
+        print("[MIGRATION] Resetting PostgreSQL serial key sequence generators...")
+        from sqlalchemy import text
+        for table in ["incidents", "alert_logs", "rf_metrics", "model_switches"]:
+            try:
+                pg_session.execute(text(f"SELECT setval(pg_get_serial_sequence('{table}', 'id'), COALESCE(MAX(id), 1)) FROM {table};"))
+            except Exception as seq_err:
+                print(f"  [WARN] Failed to reset sequence for {table}: {seq_err}")
+        pg_session.commit()
+
         print("[MIGRATION] SUCCESS! All records successfully migrated from SQLite to your PostgreSQL Cloud Database!")
 
     except Exception as e:
