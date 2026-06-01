@@ -23,11 +23,11 @@ from backend.api.routes.model import router as model_router
 
 app = FastAPI(title="RF Threat Intelligence Platform API")
 
-# CORS
+# CORS Configuration - wildcard origins are allowed only with allow_credentials=False
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
