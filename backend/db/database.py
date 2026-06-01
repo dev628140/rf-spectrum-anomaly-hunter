@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5434/rfintel")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 # Robust fallback to SQLite if PostgreSQL fails or is not available after retries
 engine = None
