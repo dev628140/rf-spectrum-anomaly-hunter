@@ -227,3 +227,6 @@ live_runtime/
 
 # Large ML models (>100MB) not suited for standard Git
 models/knn_model.pkl
+
+# Keep frontend lib files tracked
+!frontend/lib/

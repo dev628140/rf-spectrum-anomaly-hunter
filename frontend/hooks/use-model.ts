@@ -6,8 +6,8 @@ import {
   useQueryClient
 } from "@tanstack/react-query";
 
-const API =
-  "http://127.0.0.1:8000";
+const defaultBaseURL = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_URL || defaultBaseURL;
 
 type ModelSelectionResponse = {
 

@@ -1,22 +1,21 @@
 "use client";
 
-import useWebSocket
-from "react-use-websocket";
+import useWebSocket from "react-use-websocket";
 
-const WS_URL =
-  "ws://127.0.0.1:8000/ws/live";
+function getWebSocketUrl() {
+  const apiURL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  let wsURL = apiURL.replace(/^http/, "ws");
+  if (!wsURL.endsWith("/ws/live")) {
+    wsURL = wsURL.replace(/\/$/, "") + "/ws/live";
+  }
+  return wsURL;
+}
 
 export function useRFStream() {
-
-  const {
-    lastMessage
-  } = useWebSocket(
-    WS_URL,
-    {
-      shouldReconnect:
-        () => true
-    }
-  );
+  const wsURL = getWebSocketUrl();
+  const { lastMessage } = useWebSocket(wsURL, {
+    shouldReconnect: () => true,
+  });
 
   let data = null;
 

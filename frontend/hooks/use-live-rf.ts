@@ -11,13 +11,23 @@ export function useLiveRF() {
     let timeoutId: NodeJS.Timeout | null = null;
     let isCleanup = false;
 
+    function getWebSocketUrl() {
+      const apiURL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+      let wsURL = apiURL.replace(/^http/, "ws");
+      if (!wsURL.endsWith("/ws/live")) {
+        wsURL = wsURL.replace(/\/$/, "") + "/ws/live";
+      }
+      return wsURL;
+    }
+
     function connect() {
       if (isCleanup) return;
 
-      console.log("WEBSOCKET: Connecting to ws://127.0.0.1:8000/ws/live...");
+      const wsURL = getWebSocketUrl();
+      console.log(`WEBSOCKET: Connecting to ${wsURL}...`);
       
       try {
-        ws = new WebSocket("ws://127.0.0.1:8000/ws/live");
+        ws = new WebSocket(wsURL);
 
         ws.onopen = () => {
           console.log("WEBSOCKET: Connected successfully.");
