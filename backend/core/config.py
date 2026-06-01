@@ -77,7 +77,7 @@ API_HOST = os.getenv(
 )
 
 API_PORT = int(
-    os.getenv("API_PORT", "8000")
+    os.getenv("PORT", os.getenv("API_PORT", "8000"))
 )
 
 HEALTH_PATH = os.path.join(
