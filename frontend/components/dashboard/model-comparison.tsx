@@ -36,7 +36,7 @@ export function ModelComparison() {
     
     const ratio = rawScore / threshold;
     const match = isAnomaly 
-      ? Math.max(5.0, 100.0 - ratio * 15.0) 
+      ? Math.max(5.0, 80.0 * Math.exp(-(ratio - 1.0) * 0.15)) 
       : Math.min(100.0, 100.0 - ratio * 20.0);
 
     return {
