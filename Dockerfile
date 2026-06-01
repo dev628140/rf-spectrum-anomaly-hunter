@@ -17,8 +17,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the backend source code and models
+# Copy source code, edge runtime, simulation, and models
 COPY backend/ /app/backend/
+COPY edge/ /app/edge/
+COPY simulation/ /app/simulation/
 COPY models/ /app/models/
 
 # Create the live_runtime directory for state caching and local persistence
