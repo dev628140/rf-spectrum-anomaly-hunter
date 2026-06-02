@@ -231,3 +231,7 @@ models/knn_model.pkl
 
 # Keep frontend lib files tracked
 !frontend/lib/
+
+# SQLite Databases
+backend/db/rfintel.db
+backend/db/rfintel.db-journal
