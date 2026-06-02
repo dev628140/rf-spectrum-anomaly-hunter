@@ -17,7 +17,7 @@ export default function AnalyticsPage() {
       <main className="flex-1 flex flex-col min-w-0">
         <Topbar />
 
-        <div className="p-12 space-y-12 overflow-y-auto flex-1">
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
           <AnalyticsCards
             analytics={analytics.data}
             historyMetrics={historyMetrics.data}

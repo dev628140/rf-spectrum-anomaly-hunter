@@ -99,21 +99,21 @@ export function AnalyticsCards({ analytics, historyMetrics }: Props) {
   ];
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-6">
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <Card key={card.title} className={`p-6 border rounded-[2rem] shadow-lg ${card.bg}`}>
-              <CardHeader className="flex flex-row items-center justify-between pb-4">
-                <CardTitle className="text-xl font-bold text-slate-400">
+            <Card key={card.title} className={`p-4 border rounded-[1.5rem] shadow-lg ${card.bg}`}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold text-slate-400">
                   {card.title}
                 </CardTitle>
-                <Icon className={`h-8 w-8 ${card.color}`} />
+                <Icon className={`h-6 w-6 ${card.color}`} />
               </CardHeader>
               <CardContent>
-                <div className={`text-4xl font-black ${card.color}`}>
+                <div className={`text-2xl font-bold ${card.color}`}>
                   {card.value}
                 </div>
               </CardContent>
@@ -123,40 +123,40 @@ export function AnalyticsCards({ analytics, historyMetrics }: Props) {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Signal Power Over Time Trend */}
-        <Card className="p-8 border-cyan-500/10 bg-[#07111f]">
-          <CardHeader className="mb-6">
-            <CardTitle className="text-3xl font-black">Signal Power Over Time</CardTitle>
+        <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
+          <CardHeader className="mb-4">
+            <CardTitle className="text-lg font-bold">Signal Power Over Time</CardTitle>
           </CardHeader>
-          <CardContent className="h-[420px]">
+          <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData}>
                 <CartesianGrid stroke="#16314d" strokeDasharray="3 3" />
-                <XAxis dataKey="time" tick={{ fill: "#6b7280", fontSize: 13 }} />
-                <YAxis domain={[-90, -10]} tick={{ fill: "#6b7280", fontSize: 13 }} />
-                <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white" }} />
-                <Legend wrapperStyle={{ fontSize: "14px" }} />
-                <Line type="monotone" dataKey="Mean Power" stroke="#06b6d4" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="Peak Power" stroke="#c084fc" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                <XAxis dataKey="time" tick={{ fill: "#6b7280", fontSize: 11 }} />
+                <YAxis domain={[-90, -10]} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white", fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
+                <Line type="monotone" dataKey="Mean Power" stroke="#06b6d4" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+                <Line type="monotone" dataKey="Peak Power" stroke="#c084fc" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Frequency Utilization */}
-        <Card className="p-8 border-cyan-500/10 bg-[#07111f]">
-          <CardHeader className="mb-6">
-            <CardTitle className="text-3xl font-black">Frequency Utilization Density</CardTitle>
+        <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
+          <CardHeader className="mb-4">
+            <CardTitle className="text-lg font-bold">Frequency Utilization Density</CardTitle>
           </CardHeader>
-          <CardContent className="h-[420px]">
+          <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={frequencyUtilization}>
                 <CartesianGrid stroke="#16314d" strokeDasharray="3 3" />
-                <XAxis dataKey="band" tick={{ fill: "#6b7280", fontSize: 13 }} />
-                <YAxis domain={[0, 100]} tick={{ fill: "#6b7280", fontSize: 13 }} />
-                <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white" }} />
-                <Bar dataKey="usage" fill="#14b8a6" radius={[6, 6, 0, 0]} name="Channel Activity %" />
+                <XAxis dataKey="band" tick={{ fill: "#6b7280", fontSize: 11 }} />
+                <YAxis domain={[0, 100]} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white", fontSize: 12 }} />
+                <Bar dataKey="usage" fill="#14b8a6" radius={[4, 4, 0, 0]} name="Channel Activity %" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -164,31 +164,31 @@ export function AnalyticsCards({ analytics, historyMetrics }: Props) {
       </div>
 
       {/* Summary Footer */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pt-6">
-        <div className="bg-black/30 border border-white/5 p-6 rounded-2xl text-center">
-          <span className="text-slate-500 text-base font-bold">TOTAL SPECTRAL SAMPLES</span>
-          <div className="text-3xl font-black text-cyan-300 font-mono mt-2">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4">
+        <div className="bg-black/30 border border-white/5 p-4 rounded-xl text-center">
+          <span className="text-slate-550 text-xs font-semibold">TOTAL SPECTRAL SAMPLES</span>
+          <div className="text-xl font-bold text-cyan-300 font-mono mt-1">
             {(health.total_inferences ?? 24532).toLocaleString()}
           </div>
         </div>
 
-        <div className="bg-black/30 border border-white/5 p-6 rounded-2xl text-center">
-          <span className="text-slate-500 text-base font-bold">DETECTED ANOMALIES</span>
-          <div className="text-3xl font-black text-red-400 font-mono mt-2">
+        <div className="bg-black/30 border border-white/5 p-4 rounded-xl text-center">
+          <span className="text-slate-550 text-xs font-semibold">DETECTED ANOMALIES</span>
+          <div className="text-xl font-bold text-red-400 font-mono mt-1">
             {health.total_anomalies ?? 328}
           </div>
         </div>
 
-        <div className="bg-black/30 border border-white/5 p-6 rounded-2xl text-center">
-          <span className="text-slate-500 text-base font-bold">AVG OCCUPANCY RATE</span>
-          <div className="text-3xl font-black text-teal-300 font-mono mt-2">
+        <div className="bg-black/30 border border-white/5 p-4 rounded-xl text-center">
+          <span className="text-slate-550 text-xs font-semibold">AVG OCCUPANCY RATE</span>
+          <div className="text-xl font-bold text-teal-300 font-mono mt-1">
             {(current.occupancy_percent || 0.33).toFixed(2)}%
           </div>
         </div>
 
-        <div className="bg-black/30 border border-white/5 p-6 rounded-2xl text-center">
-          <span className="text-slate-500 text-base font-bold">TOTAL INTERFERENCES</span>
-          <div className="text-3xl font-black text-purple-300 font-mono mt-2">
+        <div className="bg-black/30 border border-white/5 p-4 rounded-xl text-center">
+          <span className="text-slate-550 text-xs font-semibold">TOTAL INTERFERENCES</span>
+          <div className="text-xl font-bold text-purple-300 font-mono mt-1">
             {health.total_anomalies ?? 156}
           </div>
         </div>

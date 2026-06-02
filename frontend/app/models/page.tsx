@@ -12,7 +12,7 @@ export default function ModelsPage() {
       <main className="flex-1">
         <Topbar />
 
-        <div className="p-12">
+        <div className="p-6">
           <ModelControl />
         </div>
       </main>

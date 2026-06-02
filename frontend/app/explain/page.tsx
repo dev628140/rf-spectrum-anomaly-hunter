@@ -306,63 +306,63 @@ export default function ExplainPage() {
       <main className="flex-1 flex flex-col min-w-0">
         <Topbar />
 
-        <div className="p-12 space-y-12 overflow-y-auto flex-1">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             
             {/* Left side: AI Summary & Attribution */}
-            <Card className="p-8 border-cyan-500/10 bg-[#07111f] flex flex-col justify-between shadow-[0_0_50px_rgba(0,255,255,0.02)]">
+            <Card className="p-5 border-cyan-500/10 bg-[#07111f] flex flex-col justify-between shadow-[0_0_50px_rgba(0,255,255,0.02)]">
               <div>
-                <CardHeader className="flex flex-row items-center justify-between mb-8">
-                  <div className="flex items-center gap-4">
-                    <Brain className="h-9 w-9 text-cyan-300 animate-pulse" />
-                    <CardTitle className="text-4xl font-black">AI Reasoning Summary</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <Brain className="h-6 w-6 text-cyan-300 animate-pulse" />
+                    <CardTitle className="text-xl font-bold">AI Reasoning Summary</CardTitle>
                   </div>
-                  <div className="px-5 py-2.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-lg font-black tracking-wide font-mono">
+                  <div className="px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-sm font-bold tracking-wide font-mono">
                     {explanation?.confidence ? `${explanation.confidence}%` : "94.2%"} CONFIDENCE
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-8 text-xl">
+                <CardContent className="space-y-4 text-sm">
                   {explanation ? (
                     <>
-                      <div className="space-y-2">
-                        <span className="text-slate-500 text-lg font-bold">EXPLANATION HEADLINE</span>
-                        <div className="text-2xl font-black text-white leading-snug">
+                      <div className="space-y-1">
+                        <span className="text-slate-500 text-xs font-bold">EXPLANATION HEADLINE</span>
+                        <div className="text-lg font-bold text-white leading-snug">
                           {explanation.headline}
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <span className="text-slate-500 text-lg font-bold">TECHNICAL BREAKDOWN</span>
-                        <div className="text-xl text-slate-300 font-semibold leading-relaxed">
+                      <div className="space-y-1">
+                        <span className="text-slate-500 text-xs font-bold">TECHNICAL BREAKDOWN</span>
+                        <div className="text-sm text-slate-300 font-medium leading-relaxed">
                           {explanation.technical_summary}
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <span className="text-slate-500 text-lg font-bold">IMPACT ASSESSMENT</span>
-                        <div className="text-xl text-slate-300 font-semibold leading-relaxed">
+                      <div className="space-y-1">
+                        <span className="text-slate-500 text-xs font-bold">IMPACT ASSESSMENT</span>
+                        <div className="text-sm text-slate-300 font-medium leading-relaxed">
                           {explanation.impact}
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <span className="text-slate-500 text-lg font-bold">RECOMMENDED DEFENSIVE ACTION</span>
-                        <div className="text-xl text-cyan-300 font-black leading-relaxed border border-cyan-500/10 rounded-2xl p-6 bg-cyan-500/[0.02] shadow-[0_0_20px_rgba(6,182,212,0.05)]">
+                      <div className="space-y-1">
+                        <span className="text-slate-500 text-xs font-bold">RECOMMENDED DEFENSIVE ACTION</span>
+                        <div className="text-sm text-cyan-300 font-bold leading-relaxed border border-cyan-500/10 rounded-xl p-4 bg-cyan-500/[0.02] shadow-[0_0_20px_rgba(6,182,212,0.05)]">
                           {explanation.recommended_action}
                         </div>
                       </div>
                     </>
                   ) : (
-                    <div className="text-center py-12 text-slate-400">
-                      <p className="text-2xl font-black text-white">Analyzing RF Spectrogram...</p>
-                      <p className="text-lg mt-2">Computing reconstruction error attributions</p>
+                    <div className="text-center py-6 text-slate-400">
+                      <p className="text-lg font-bold text-white">Analyzing RF Spectrogram...</p>
+                      <p className="text-sm mt-1">Computing reconstruction error attributions</p>
                     </div>
                   )}
 
                   {/* Top Features Progress Bars */}
-                  <div className="space-y-6 pt-6 border-t border-white/5">
-                    <h3 className="text-2xl font-black text-white">Spectrum Attribution Factors</h3>
+                  <div className="space-y-4 pt-4 border-t border-white/5">
+                    <h3 className="text-base font-bold text-white">Spectrum Attribution Factors</h3>
 
                     {explanation?.top_features && explanation.top_features.length > 0 ? (
                       explanation.top_features.map((feat: any, idx: number) => {
@@ -372,12 +372,12 @@ export default function ExplainPage() {
                           .replace("_", " ")
                           .replace(/\b\w/g, (c: string) => c.toUpperCase());
                         return (
-                          <div key={idx} className="space-y-2">
-                            <div className="flex justify-between text-lg font-bold text-slate-400">
+                          <div key={idx} className="space-y-1.5">
+                            <div className="flex justify-between text-sm font-semibold text-slate-400">
                               <span>{displayName}</span>
                               <span>{feat.importance.toFixed(2)}</span>
                             </div>
-                            <div className="w-full bg-black/40 h-3 rounded-full overflow-hidden border border-white/5">
+                            <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden border border-white/5">
                               <div className={`${colors[idx % 3]} h-full rounded-full`} style={{ width: `${percent}%` }} />
                             </div>
                           </div>
@@ -385,32 +385,32 @@ export default function ExplainPage() {
                       })
                     ) : (
                       <>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-lg font-bold text-slate-400">
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-sm font-semibold text-slate-400">
                             <span>Normal Baseline Deviation</span>
                             <span>0.82</span>
                           </div>
-                          <div className="w-full bg-black/40 h-3 rounded-full overflow-hidden border border-white/5">
+                          <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden border border-white/5">
                             <div className="bg-cyan-500 h-full rounded-full" style={{ width: "82%" }} />
                           </div>
                         </div>
 
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-lg font-bold text-slate-400">
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-sm font-semibold text-slate-400">
                             <span>Spectral Spikiness Ratio</span>
                             <span>0.64</span>
                           </div>
-                          <div className="w-full bg-black/40 h-3 rounded-full overflow-hidden border border-white/5">
+                          <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden border border-white/5">
                             <div className="bg-purple-500 h-full rounded-full" style={{ width: "64%" }} />
                           </div>
                         </div>
 
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-lg font-bold text-slate-400">
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-sm font-semibold text-slate-400">
                             <span>Bandwidth Occupancy Rise</span>
                             <span>0.52</span>
                           </div>
-                          <div className="w-full bg-black/40 h-3 rounded-full overflow-hidden border border-white/5">
+                          <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden border border-white/5">
                             <div className="bg-teal-500 h-full rounded-full" style={{ width: "52%" }} />
                           </div>
                         </div>
@@ -422,40 +422,40 @@ export default function ExplainPage() {
             </Card>
 
             {/* Right side: Error heatmap and Feature Importance */}
-            <div className="space-y-12">
+            <div className="space-y-6">
               
               {/* Reconstruction Error Heatmap */}
-              <Card className="p-8 border-cyan-500/10 bg-[#07111f] rounded-[2rem] shadow-[0_0_60px_rgba(0,255,255,0.04)] flex flex-col justify-between">
-                <CardHeader className="flex flex-row items-center justify-between pb-4">
-                  <div className="flex items-center gap-4">
-                    <ShieldAlert className="h-8 w-8 text-cyan-300" />
+              <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] shadow-[0_0_60px_rgba(0,255,255,0.04)] flex flex-col justify-between">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <div className="flex items-center gap-2.5">
+                    <ShieldAlert className="h-6 w-6 text-cyan-300" />
                     <div>
-                      <CardTitle className="text-3xl font-black text-white">Reconstruction Error Heatmap</CardTitle>
-                      <div className="text-slate-400 text-sm mt-1">Pixel-level neural autoencoder deviation map</div>
+                      <CardTitle className="text-xl font-bold text-white">Reconstruction Error Heatmap</CardTitle>
+                      <div className="text-slate-400 text-xs mt-0.5">Pixel-level neural autoencoder deviation map</div>
                     </div>
                   </div>
                   {isAutoencoderActive && (
-                    <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-1.5 text-xs font-black tracking-widest font-mono text-cyan-300 uppercase">
+                    <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-bold tracking-widest font-mono text-cyan-300 uppercase">
                       Neural active
                     </div>
                   )}
                 </CardHeader>
 
-                <CardContent className="space-y-8 mt-6">
+                <CardContent className="space-y-4 mt-2">
                   {isLoading ? (
                     // Loading State
-                    <div className="h-[350px] flex flex-col items-center justify-center border border-cyan-500/10 bg-black/40 rounded-2xl text-slate-500 font-bold text-lg">
-                      <RefreshCw className="h-10 w-10 text-cyan-400 animate-spin mb-4" />
-                      <span className="font-mono text-sm tracking-widest text-cyan-300">CALCULATING SPECTRAL RESIDUALS...</span>
+                    <div className="h-[260px] flex flex-col items-center justify-center border border-cyan-500/10 bg-black/40 rounded-2xl text-slate-500 font-bold text-sm">
+                      <RefreshCw className="h-8 w-8 text-cyan-400 animate-spin mb-3" />
+                      <span className="font-mono text-xs tracking-widest text-cyan-300">CALCULATING SPECTRAL RESIDUALS...</span>
                     </div>
                   ) : isAutoencoderActive ? (
                     // Active Heatmap Canvas
-                    <div className="relative overflow-hidden rounded-2xl border border-cyan-500/15 bg-black p-1.5 group">
+                    <div className="relative overflow-hidden rounded-xl border border-cyan-500/15 bg-black p-1 group">
                       <canvas
                         ref={canvasRef}
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
-                        className="w-full h-[350px] bg-black rounded-xl cursor-crosshair block transition-all"
+                        className="w-full h-[260px] bg-black rounded-lg cursor-crosshair block transition-all"
                       />
 
                       {/* Laser Grid Hover Crosshairs & Floating Tooltip */}
@@ -497,48 +497,45 @@ export default function ExplainPage() {
                     </div>
                   ) : (
                     // Blueprint stand-by dashboard overlay if other model is active
-                    <div className="relative overflow-hidden rounded-2xl border border-dashed border-cyan-500/20 bg-black/60 p-8 h-[350px] flex flex-col justify-between items-center text-center group">
+                    <div className="relative overflow-hidden rounded-xl border border-dashed border-cyan-500/20 bg-black/60 p-5 h-[260px] flex flex-col justify-between items-center text-center group">
                       <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.02)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
                       
                       <div className="absolute -top-24 -left-24 h-48 w-48 rounded-full bg-cyan-500/5 blur-3xl" />
                       <div className="absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-purple-500/5 blur-3xl" />
 
-                      <div className="my-auto space-y-6 max-w-md relative z-10">
-                        <div className="relative mx-auto h-20 w-20 rounded-full border border-cyan-500/30 bg-cyan-950/20 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.1)] group-hover:scale-110 transition-transform duration-300">
-                          <Activity className="h-10 w-10 text-cyan-400 animate-pulse" />
+                      <div className="my-auto space-y-3 max-w-md relative z-10">
+                        <div className="relative mx-auto h-12 w-12 rounded-full border border-cyan-500/30 bg-cyan-950/20 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.1)] group-hover:scale-110 transition-transform duration-300">
+                          <Activity className="h-6 w-6 text-cyan-400 animate-pulse" />
                           <div className="absolute inset-0 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin duration-1000" style={{ animationDuration: '3s' }} />
                         </div>
                         
-                        <div className="space-y-2">
-                          <h3 className="text-3xl font-black text-white tracking-tight">Autoencoder Pipeline Standby</h3>
-                          <p className="text-slate-400 text-sm font-semibold leading-relaxed">
+                        <div className="space-y-1">
+                          <h3 className="text-base font-bold text-white tracking-tight">Autoencoder Pipeline Standby</h3>
+                          <p className="text-slate-400 text-xs font-medium leading-relaxed">
                             Neural autoencoder reconstruction maps are offline. Current active model is <span className="text-purple-300 font-mono font-bold capitalize">{activeModel.replace("_", " ")}</span>.
-                          </p>
-                          <p className="text-slate-500 text-xs font-semibold max-w-xs mx-auto leading-normal">
-                            Activate the unsupervised autoencoder model to enable differential spectral residual loss (MSE) and hotspot explainability.
                           </p>
                         </div>
 
                         <button
                           onClick={() => switchModel.mutate("autoencoder")}
                           disabled={switchModel.isPending}
-                          className="px-8 py-3.5 rounded-xl text-sm font-black bg-cyan-500 text-black hover:bg-cyan-400 disabled:bg-cyan-950 disabled:text-cyan-600 shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-300 flex items-center gap-2 mx-auto uppercase tracking-wider active:scale-95"
+                          className="px-4 py-2 text-xs font-bold bg-cyan-500 text-black hover:bg-cyan-400 disabled:bg-cyan-950 disabled:text-cyan-600 shadow-[0_0_20px_rgba(6,182,212,0.25)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all duration-300 flex items-center gap-1.5 mx-auto uppercase tracking-wider active:scale-95 rounded-lg"
                         >
                           {switchModel.isPending ? (
                             <>
-                              <RefreshCw className="h-4.5 w-4.5 animate-spin" />
+                              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                               Engaging Neural Engine...
                             </>
                           ) : (
                             <>
-                              <Sliders className="h-4.5 w-4.5" />
+                              <Sliders className="h-3.5 w-3.5" />
                               Engage Autoencoder Model
                             </>
                           )}
                         </button>
                         
                         {switchModel.isError && (
-                          <div className="text-red-400 text-xs font-black font-mono animate-pulse">
+                          <div className="text-red-400 text-[10px] font-bold font-mono animate-pulse">
                             FAILED TO TRANSMIT MODEL CHANGE COMMAND. RETRY.
                           </div>
                         )}
@@ -547,24 +544,24 @@ export default function ExplainPage() {
                   )}
 
                   {/* CALIBRATED COLOR LEGEND SCALE WITH LIVE POINTERS */}
-                  <div className="p-5 rounded-2xl border border-white/5 bg-black/40 flex flex-col gap-3 relative overflow-hidden">
-                    <div className="flex justify-between items-center text-[10px] font-black font-mono text-slate-500 tracking-wider">
+                  <div className="p-3 rounded-xl border border-white/5 bg-black/40 flex flex-col gap-2 relative overflow-hidden">
+                    <div className="flex justify-between items-center text-[9px] font-bold font-mono text-slate-500 tracking-wider">
                       <span>RECONSTRUCTION RESIDUAL SCALE (MSE)</span>
                       <span className="text-cyan-400">ANOMALY MAGNITUDE</span>
                     </div>
                     
                     <div className="relative">
                       {/* Gradient Bar */}
-                      <div className="h-5 w-full rounded-full bg-gradient-to-r from-[#031d44] via-[#c084fc] via-[#f43f5e] to-yellow-100 border border-white/10 relative overflow-hidden" />
+                      <div className="h-3 w-full rounded-full bg-gradient-to-r from-[#031d44] via-[#c084fc] via-[#f43f5e] to-yellow-100 border border-white/10 relative overflow-hidden" />
                       
                       {/* Live Max Error Marker */}
                       {isAutoencoderActive && maxError > 0 && (
                         <div 
-                          className="absolute -top-1.5 h-8 w-1.5 bg-yellow-300 shadow-[0_0_10px_rgba(253,224,71,0.8)] z-10 rounded-full transition-all duration-300"
+                          className="absolute -top-1 h-5 w-1 bg-yellow-300 shadow-[0_0_10px_rgba(253,224,71,0.8)] z-10 rounded-full transition-all duration-300"
                           style={{ left: `${Math.min(100, (maxError / 12.0) * 100)}%` }}
                           title={`Max Error: ${maxError}`}
                         >
-                          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-yellow-300 text-black text-[9px] font-black font-mono px-1 rounded shadow">
+                          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-yellow-300 text-black text-[8px] font-bold font-mono px-1 rounded shadow">
                             MAX
                           </div>
                         </div>
@@ -573,52 +570,52 @@ export default function ExplainPage() {
                       {/* Live Mean Error Marker */}
                       {isAutoencoderActive && meanError > 0 && (
                         <div 
-                          className="absolute -top-1.5 h-8 w-1.5 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] z-10 rounded-full transition-all duration-300"
+                          className="absolute -top-1 h-5 w-1 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] z-10 rounded-full transition-all duration-300"
                           style={{ left: `${Math.min(100, (meanError / 12.0) * 100)}%` }}
                           title={`Mean Error: ${meanError}`}
                         >
-                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-cyan-400 text-black text-[9px] font-black font-mono px-1 rounded shadow">
+                          <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-cyan-400 text-black text-[8px] font-bold font-mono px-1 rounded shadow">
                             AVG
                           </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex justify-between text-[9px] font-extrabold font-mono text-slate-400 tracking-wider mt-4">
+                    <div className="flex justify-between text-[8px] font-bold font-mono text-slate-400 tracking-wider mt-3">
                       <span className="text-blue-400">EXACT MATCH (0.0)</span>
                       <span className="text-purple-400">MID LEVEL (5.0)</span>
-                      <span className="text-red-400 animate-pulse">CRITICAL ANOMALY (12.0+)</span>
+                      <span className="text-red-400 animate-pulse">CRITICAL (12.0+)</span>
                     </div>
                   </div>
 
                   {/* 3-COLUMN TELEMETRY GRID */}
-                  <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
-                    <div className="rounded-2xl border border-cyan-500/10 bg-cyan-500/[0.03] p-5 flex flex-col justify-between">
-                      <span className="text-[0.9rem] text-slate-500 font-bold uppercase tracking-wider">Reconstruction Loss</span>
-                      <div className="mt-2 text-[1.7rem] font-black text-cyan-300 font-mono flex items-baseline gap-1">
+                  <div className="grid grid-cols-3 gap-3 pt-3 border-t border-white/5">
+                    <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/[0.03] p-3.5 flex flex-col justify-between">
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Reconstruction Loss</span>
+                      <div className="mt-1 text-lg font-black text-cyan-300 font-mono flex items-baseline gap-1">
                         <span>{isAutoencoderActive ? meanError.toFixed(2) : "0.00"}</span>
-                        <span className="text-xs text-slate-500">AVG</span>
+                        <span className="text-[10px] text-slate-500">AVG</span>
                         <span className="text-slate-600 font-normal">/</span>
                         <span className="text-purple-300">{isAutoencoderActive ? maxError.toFixed(1) : "0.0"}</span>
-                        <span className="text-xs text-slate-500">MAX</span>
+                        <span className="text-[10px] text-slate-500">MAX</span>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-cyan-500/10 bg-cyan-500/[0.03] p-5 flex flex-col justify-between">
-                      <span className="text-[0.9rem] text-slate-500 font-bold uppercase tracking-wider">Anomaly Hotspots</span>
-                      <div className="mt-2 text-[1.7rem] font-black text-cyan-300 font-mono flex items-baseline gap-2">
+                    <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/[0.03] p-3.5 flex flex-col justify-between">
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Anomaly Hotspots</span>
+                      <div className="mt-1 text-lg font-black text-cyan-300 font-mono flex items-baseline gap-2">
                         <span>{isAutoencoderActive ? hotspotsCount : "0"}</span>
-                        <span className="text-xs text-slate-500 font-sans font-semibold">
-                          {hotspotsCount > 5 ? "CRITICAL CLUSTERS" : hotspotsCount > 0 ? "DEVIATIONS" : "STABLE BINS"}
+                        <span className="text-[9px] text-slate-500 font-sans font-semibold">
+                          {hotspotsCount > 5 ? "CRITICAL" : hotspotsCount > 0 ? "DRIFT" : "STABLE"}
                         </span>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-cyan-500/10 bg-cyan-500/[0.03] p-5 flex flex-col justify-between">
-                      <span className="text-[0.9rem] text-slate-500 font-bold uppercase tracking-wider">Neural Latency</span>
-                      <div className="mt-2 text-[1.7rem] font-black text-cyan-300 font-mono flex items-baseline gap-1">
+                    <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/[0.03] p-3.5 flex flex-col justify-between">
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Neural Latency</span>
+                      <div className="mt-1 text-lg font-black text-cyan-300 font-mono flex items-baseline gap-1">
                         <span>{isAutoencoderActive ? "6.20" : "0.00"}</span>
-                        <span className="text-xs text-slate-500">ms</span>
+                        <span className="text-[10px] text-slate-500">ms</span>
                       </div>
                     </div>
                   </div>
@@ -626,19 +623,19 @@ export default function ExplainPage() {
               </Card>
 
               {/* Feature Importance Bar Chart */}
-              <Card className="p-8 border-cyan-500/10 bg-[#07111f] rounded-[2rem]">
-                <CardHeader className="flex flex-row items-center gap-4 mb-6">
-                  <Sliders className="h-8 w-8 text-cyan-300" />
-                  <CardTitle className="text-3xl font-black">Frequency Band Attribution (XAI)</CardTitle>
+              <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
+                <CardHeader className="flex flex-row items-center gap-3 mb-4">
+                  <Sliders className="h-6 w-6 text-cyan-300" />
+                  <CardTitle className="text-xl font-bold">Frequency Band Attribution (XAI)</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[280px]">
+                <CardContent className="h-[210px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
                       <CartesianGrid stroke="#16314d" strokeDasharray="3 3" />
-                      <XAxis dataKey="name" tick={{ fill: "#6b7280", fontSize: 13 }} />
-                      <YAxis tick={{ fill: "#6b7280", fontSize: 13 }} />
-                      <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white" }} />
-                      <Bar dataKey="importance" fill="#06b6d4" radius={[6, 6, 0, 0]} />
+                      <XAxis dataKey="name" tick={{ fill: "#6b7280", fontSize: 11 }} />
+                      <YAxis tick={{ fill: "#6b7280", fontSize: 11 }} />
+                      <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white", fontSize: 12 }} />
+                      <Bar dataKey="importance" fill="#06b6d4" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -649,16 +646,16 @@ export default function ExplainPage() {
           </div>
 
           {/* AI Decision Pipeline Timeline */}
-          <Card className="p-8 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[2rem]">
-            <CardHeader className="flex flex-row items-center gap-4 mb-8">
-              <Cpu className="h-9 w-9 text-cyan-300" />
-              <CardTitle className="text-4xl font-black">Explainable AI Decision Pipeline</CardTitle>
+          <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
+            <CardHeader className="flex flex-row items-center gap-3 mb-4">
+              <Cpu className="h-7 w-7 text-cyan-300" />
+              <CardTitle className="text-xl font-bold">Explainable AI Decision Pipeline</CardTitle>
             </CardHeader>
 
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
                 {/* Horizontal line connector */}
-                <div className="absolute top-[28px] left-[10%] right-[10%] h-[2px] bg-cyan-500/10 hidden md:block" />
+                <div className="absolute top-[20px] left-[10%] right-[10%] h-[2px] bg-cyan-500/10 hidden md:block" />
 
                 {[
                   { step: "01", title: "RF Ingestion", desc: "Raw complex IQ samples captured at 2.4 MSPS from SDR receiver." },
@@ -667,12 +664,12 @@ export default function ExplainPage() {
                   { step: "04", title: "Residual analysis", desc: "Reconstruction error residuals computed, hot spots localized." },
                   { step: "05", title: "Risk Decision", desc: "Random Forest tags threat classification and fires notifications." },
                 ].map((item, idx) => (
-                  <div key={idx} className="relative z-10 flex flex-col items-center text-center space-y-4 bg-black/20 p-6 rounded-2xl border border-cyan-500/5">
-                    <div className="h-14 w-14 rounded-full border-2 border-cyan-500/30 bg-[#07111f] flex items-center justify-center text-cyan-300 text-xl font-black shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+                  <div key={idx} className="relative z-10 flex flex-col items-center text-center space-y-2 bg-black/20 p-4 rounded-xl border border-cyan-500/5">
+                    <div className="h-10 w-10 rounded-full border-2 border-cyan-500/30 bg-[#07111f] flex items-center justify-center text-cyan-300 text-sm font-bold shadow-[0_0_15px_rgba(6,182,212,0.15)]">
                       {item.step}
                     </div>
-                    <div className="text-2xl font-black text-white">{item.title}</div>
-                    <p className="text-base text-slate-400 font-medium leading-relaxed">{item.desc}</p>
+                    <div className="text-sm font-bold text-white">{item.title}</div>
+                    <p className="text-xs text-slate-400 font-medium leading-relaxed">{item.desc}</p>
                   </div>
                 ))}
               </div>

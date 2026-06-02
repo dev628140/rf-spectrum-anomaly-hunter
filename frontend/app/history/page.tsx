@@ -189,17 +189,17 @@ export default function HistoryPage() {
       <main className="flex-1 flex flex-col min-w-0">
         <Topbar />
 
-        <div className="p-12 space-y-12 overflow-y-auto flex-1">
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
           {/* Forensic Playback Controls Toolbar */}
-          <Card className="p-8 border-cyan-500/10 bg-[#07111f] shadow-[0_0_40px_rgba(0,255,255,0.02)]">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_40px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               
               {/* Mode and Info */}
-              <div className="flex items-center gap-6 shrink-0">
-                <div className="flex bg-black/40 border border-cyan-500/20 rounded-xl p-1.5">
+              <div className="flex items-center gap-4 shrink-0">
+                <div className="flex bg-black/40 border border-cyan-500/20 rounded-lg p-1">
                   <button
                     onClick={() => setActiveTab("npz")}
-                    className={`px-5 py-2.5 rounded-lg text-lg font-black transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                       activeTab === "npz" ? "bg-cyan-500 text-black shadow-lg" : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -207,7 +207,7 @@ export default function HistoryPage() {
                   </button>
                   <button
                     onClick={() => setActiveTab("csv")}
-                    className={`px-5 py-2.5 rounded-lg text-lg font-black transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                       activeTab === "csv" ? "bg-cyan-500 text-black shadow-lg" : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -215,45 +215,45 @@ export default function HistoryPage() {
                   </button>
                 </div>
                 <div>
-                  <div className="text-slate-500 text-lg font-bold">FRAME COUNTER</div>
-                  <div className="text-2xl font-black text-cyan-300 font-mono">
+                  <div className="text-slate-555 text-xs font-bold">FRAME COUNTER</div>
+                  <div className="text-lg font-black text-cyan-300 font-mono">
                     {currentIndex + 1} / {timeline.length}
                   </div>
                 </div>
               </div>
 
               {/* Central Player Buttons */}
-              <div className="flex items-center gap-5">
-                <Button onClick={handleStepBackward} variant="outline" className="h-14 w-14 rounded-xl border-cyan-500/20 hover:border-cyan-400 bg-transparent text-cyan-300">
-                  <SkipBack className="h-6 w-6" />
+              <div className="flex items-center gap-3">
+                <Button onClick={handleStepBackward} variant="outline" className="h-10 w-10 rounded-lg border-cyan-500/20 hover:border-cyan-400 bg-transparent text-cyan-300 p-0">
+                  <SkipBack className="h-4.5 w-4.5" />
                 </Button>
                 
                 <Button
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className={`h-16 w-16 rounded-full flex items-center justify-center transition-all ${
+                  className={`h-12 w-12 rounded-full flex items-center justify-center transition-all ${
                     isPlaying ? "bg-red-500 hover:bg-red-400 text-white" : "bg-cyan-500 hover:bg-cyan-400 text-black"
                   }`}
                 >
-                  {isPlaying ? <Pause className="h-7 w-7" /> : <Play className="h-7 w-7 fill-current ml-1" />}
+                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 fill-current ml-0.5" />}
                 </Button>
 
-                <Button onClick={handleStepForward} variant="outline" className="h-14 w-14 rounded-xl border-cyan-500/20 hover:border-cyan-400 bg-transparent text-cyan-300">
-                  <SkipForward className="h-6 w-6" />
+                <Button onClick={handleStepForward} variant="outline" className="h-10 w-10 rounded-lg border-cyan-500/20 hover:border-cyan-400 bg-transparent text-cyan-300 p-0">
+                  <SkipForward className="h-4.5 w-4.5" />
                 </Button>
               </div>
 
               {/* Playback Speed Controls */}
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-3">
-                  <Gauge className="h-6 w-6 text-slate-500" />
-                  <span className="text-slate-500 text-lg font-bold">PLAYBACK SPEED</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Gauge className="h-4.5 w-4.5 text-slate-500" />
+                  <span className="text-slate-555 text-xs font-bold">PLAYBACK SPEED</span>
                 </div>
-                <div className="flex bg-black/40 border border-cyan-500/20 rounded-xl p-1">
+                <div className="flex bg-black/40 border border-cyan-500/20 rounded-lg p-0.5">
                   {[1, 2, 5].map((speed) => (
                     <button
                       key={speed}
                       onClick={() => setPlaybackSpeed(speed)}
-                      className={`h-10 px-4 rounded-lg text-base font-black transition-all ${
+                      className={`h-8 px-2.5 rounded-md text-xs font-bold transition-all ${
                         playbackSpeed === speed ? "bg-cyan-500/20 border border-cyan-500/30 text-cyan-300" : "text-slate-400 hover:text-white"
                       }`}
                     >
@@ -266,8 +266,8 @@ export default function HistoryPage() {
             </div>
 
             {/* Draggable Timeline Slider */}
-            <div className="mt-8 space-y-2">
-              <div className="flex justify-between text-base text-slate-500 font-bold font-mono">
+            <div className="mt-4 space-y-1">
+              <div className="flex justify-between text-xs text-slate-500 font-bold font-mono">
                 <span>TIME: {timeline[0]?.timestamp || "00:00:00"}</span>
                 <span className="text-cyan-300">CURRENT FRAME TIMESTAMP: {currentFrame.timestamp}</span>
                 <span>TIME: {timeline[timeline.length - 1]?.timestamp || "00:00:00"}</span>
@@ -281,26 +281,26 @@ export default function HistoryPage() {
                   setIsPlaying(false);
                   setCurrentIndex(parseInt(e.target.value));
                 }}
-                className="w-full accent-cyan-400 h-2 bg-black/40 rounded-lg appearance-none cursor-pointer border border-cyan-500/10"
+                className="w-full accent-cyan-400 h-1.5 bg-black/40 rounded-lg appearance-none cursor-pointer border border-cyan-500/10"
               />
             </div>
           </Card>
 
           {/* Synchronized Replay Charts Section */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             
             {/* Replay FFT Spectrum */}
-            <Card className="p-8 border-cyan-500/10 bg-[#07111f]">
-              <CardHeader className="flex flex-row items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <Activity className="h-8 w-8 text-cyan-300" />
-                  <CardTitle className="text-3xl font-black">Forensic FFT Spectrum</CardTitle>
+            <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
+              <CardHeader className="flex flex-row items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <Activity className="h-6 w-6 text-cyan-300" />
+                  <CardTitle className="text-lg font-bold">Forensic FFT Spectrum</CardTitle>
                 </div>
-                <div className="px-4 py-2 rounded-xl border border-cyan-500/20 bg-cyan-500/5 text-lg font-bold text-cyan-300 font-mono">
+                <div className="px-2.5 py-1 rounded-lg border border-cyan-500/20 bg-cyan-500/5 text-xs font-bold text-cyan-300 font-mono">
                   {currentFrame.metrics.peak_power.toFixed(1)} dBm PEAK
                 </div>
               </CardHeader>
-              <CardContent className="h-[420px]">
+              <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={currentFrame.spectrum}>
                     <defs>
@@ -310,32 +310,32 @@ export default function HistoryPage() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid stroke="#16314d" strokeDasharray="3 3" />
-                    <XAxis dataKey="frequency" tick={{ fill: "#6b7280", fontSize: 13 }} />
-                    <YAxis domain={[-90, -10]} tick={{ fill: "#6b7280", fontSize: 13 }} />
-                    <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white" }} />
-                    <Area type="monotone" dataKey="power" stroke="#22d3ee" strokeWidth={2.5} fill="url(#replayFill)" isAnimationActive={false} />
+                    <XAxis dataKey="frequency" tick={{ fill: "#6b7280", fontSize: 11 }} />
+                    <YAxis domain={[-90, -10]} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                    <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white", fontSize: 12 }} />
+                    <Area type="monotone" dataKey="power" stroke="#22d3ee" strokeWidth={2} fill="url(#replayFill)" isAnimationActive={false} />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
             {/* Synchronized Waterfall Heatmap Grid */}
-            <Card className="p-8 border-cyan-500/10 bg-[#07111f] flex flex-col justify-between">
+            <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] flex flex-col justify-between">
               <div>
-                <CardHeader className="flex flex-row items-center gap-4 mb-6">
-                  <Layers className="h-8 w-8 text-cyan-300" />
-                  <CardTitle className="text-3xl font-black">Forensic Spectrogram</CardTitle>
+                <CardHeader className="flex flex-row items-center gap-2.5 mb-4">
+                  <Layers className="h-6 w-6 text-cyan-300" />
+                  <CardTitle className="text-lg font-bold">Forensic Spectrogram</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-[3px] bg-black p-3 rounded-2xl border border-cyan-500/10">
+                <CardContent className="space-y-[2px] bg-black p-2 rounded-xl border border-cyan-500/10">
                   {timeline.slice(Math.max(0, currentIndex - 15), currentIndex + 1).map((frame, rowIndex) => (
-                    <div key={rowIndex} className="flex gap-[2px] h-[16px]">
+                    <div key={rowIndex} className="flex gap-[1px] h-[12px]">
                       {frame.spectrum.slice(0, 32).map((point, colIndex) => (
                         <div
                           key={colIndex}
                           className="flex-1 rounded-sm"
                           style={{
                             backgroundColor: getColor(point.power),
-                            boxShadow: point.power > -35 ? "0 0 6px rgba(0,255,255,0.8)" : "none"
+                            boxShadow: point.power > -35 ? "0 0 4px rgba(0,255,255,0.8)" : "none"
                           }}
                         />
                       ))}
@@ -343,7 +343,7 @@ export default function HistoryPage() {
                   ))}
                 </CardContent>
               </div>
-              <div className="flex justify-between items-center mt-6 text-slate-500 text-base font-bold">
+              <div className="flex justify-between items-center mt-4 text-slate-500 text-xs font-bold">
                 <span>FREQ: 88.0 MHz</span>
                 <span>SPECTROGRAM ROLLING FRAME WINDOW</span>
                 <span>FREQ: 108.0 MHz</span>
@@ -353,20 +353,20 @@ export default function HistoryPage() {
           </div>
 
           {/* Historical Intelligence Analysis */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             
             {/* Threat Event Details */}
-            <Card className={`p-8 border rounded-[2rem] transition-all duration-500 ${
+            <Card className={`p-5 border rounded-[1.5rem] transition-all duration-500 ${
               currentFrame.threat.state !== "NORMAL"
                 ? "bg-red-500/[0.03] border-red-500/20 shadow-[0_0_50px_rgba(239,68,68,0.03)]"
                 : "bg-green-500/[0.02] border-green-500/10"
             }`}>
-              <CardHeader className="flex flex-row items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <AlertTriangle className={`h-9 w-9 ${currentFrame.threat.state !== "NORMAL" ? "text-red-400" : "text-green-400"}`} />
-                  <CardTitle className="text-3xl font-black">Forensic Incident Context</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <AlertTriangle className={`h-6 w-6 ${currentFrame.threat.state !== "NORMAL" ? "text-red-400" : "text-green-400"}`} />
+                  <CardTitle className="text-lg font-bold">Forensic Incident Context</CardTitle>
                 </div>
-                <div className={`px-5 py-2.5 rounded-full font-black text-lg border ${
+                <div className={`px-3.5 py-1.5 rounded-full font-bold text-sm border ${
                   currentFrame.threat.state !== "NORMAL"
                     ? "bg-red-500/10 border-red-500/30 text-red-400"
                     : "bg-green-500/10 border-green-500/20 text-green-400"
@@ -374,64 +374,64 @@ export default function HistoryPage() {
                   {currentFrame.threat.state}
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6 text-xl">
-                <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                  <span className="text-slate-400 font-semibold">Detection Confidence</span>
-                  <span className="text-white font-black font-mono">{currentFrame.threat.confidence}%</span>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
+                  <span className="text-slate-400 font-medium">Detection Confidence</span>
+                  <span className="text-white font-bold font-mono">{currentFrame.threat.confidence}%</span>
                 </div>
-                <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                  <span className="text-slate-400 font-semibold">Incident Severity</span>
-                  <span className={`font-black ${currentFrame.threat.severity === "HIGH" ? "text-red-400 animate-pulse" : "text-slate-300"}`}>
+                <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
+                  <span className="text-slate-400 font-medium">Incident Severity</span>
+                  <span className={`font-bold ${currentFrame.threat.severity === "HIGH" ? "text-red-400 animate-pulse" : "text-slate-300"}`}>
                     {currentFrame.threat.severity}
                   </span>
                 </div>
                 {currentFrame.threat.latency !== undefined && currentFrame.threat.latency !== null && (
-                  <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                    <span className="text-slate-400 font-semibold">Processing Latency</span>
-                    <span className="text-white font-black font-mono">{currentFrame.threat.latency.toFixed(2)} ms</span>
+                  <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
+                    <span className="text-slate-400 font-medium">Processing Latency</span>
+                    <span className="text-white font-bold font-mono">{currentFrame.threat.latency.toFixed(2)} ms</span>
                   </div>
                 )}
                 {currentFrame.threat.min_value !== undefined && currentFrame.threat.min_value !== null && (
-                  <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                    <span className="text-slate-400 font-semibold">SDR Power Bounds (Min/Max)</span>
-                    <span className="text-white font-black font-mono">
+                  <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
+                    <span className="text-slate-400 font-medium">SDR Power Bounds (Min/Max)</span>
+                    <span className="text-white font-bold font-mono">
                       {currentFrame.threat.min_value.toFixed(1)} / {currentFrame.threat.max_value?.toFixed(1) ?? "N/A"} dBm
                     </span>
                   </div>
                 )}
-                <div className="space-y-2">
-                  <span className="text-slate-400 font-semibold block">Incident Summary Description</span>
-                  <p className="text-white font-bold leading-relaxed">{currentFrame.threat.summary}</p>
+                <div className="space-y-1">
+                  <span className="text-slate-400 font-medium block">Incident Summary Description</span>
+                  <p className="text-white font-semibold leading-relaxed">{currentFrame.threat.summary}</p>
                 </div>
               </CardContent>
             </Card>
 
             {/* Signal Profile Metrics */}
-            <Card className="p-8 border border-cyan-500/10 bg-[#07111f]">
-              <CardHeader className="flex flex-row items-center gap-4 mb-6">
-                <Sliders className="h-8 w-8 text-cyan-300" />
-                <CardTitle className="text-3xl font-black">Forensic Telemetry Metrics</CardTitle>
+            <Card className="p-5 border border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
+              <CardHeader className="flex flex-row items-center gap-2.5 mb-4">
+                <Sliders className="h-6 w-6 text-cyan-300" />
+                <CardTitle className="text-lg font-bold">Forensic Telemetry Metrics</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-2 gap-4">
                 
-                <div className="bg-black/40 border border-white/5 rounded-2xl p-5">
-                  <span className="text-slate-500 text-base font-bold">MEAN POWER</span>
-                  <div className="text-3xl font-black text-cyan-300 font-mono mt-2">{currentFrame.metrics.mean_power.toFixed(2)} dBm</div>
+                <div className="bg-black/40 border border-white/5 rounded-xl p-3.5">
+                  <span className="text-slate-555 text-xs font-bold">MEAN POWER</span>
+                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{currentFrame.metrics.mean_power.toFixed(2)} dBm</div>
                 </div>
 
-                <div className="bg-black/40 border border-white/5 rounded-2xl p-5">
-                  <span className="text-slate-500 text-base font-bold">PEAK POWER</span>
-                  <div className="text-3xl font-black text-cyan-300 font-mono mt-2">{currentFrame.metrics.peak_power.toFixed(2)} dBm</div>
+                <div className="bg-black/40 border border-white/5 rounded-xl p-3.5">
+                  <span className="text-slate-555 text-xs font-bold">PEAK POWER</span>
+                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{currentFrame.metrics.peak_power.toFixed(2)} dBm</div>
                 </div>
 
-                <div className="bg-black/40 border border-white/5 rounded-2xl p-5">
-                  <span className="text-slate-500 text-base font-bold">SPECTRAL OCCUPANCY</span>
-                  <div className="text-3xl font-black text-cyan-300 font-mono mt-2">{(currentFrame.metrics.occupancy * 100).toFixed(1)}%</div>
+                <div className="bg-black/40 border border-white/5 rounded-xl p-3.5">
+                  <span className="text-slate-555 text-xs font-bold">SPECTRAL OCCUPANCY</span>
+                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{(currentFrame.metrics.occupancy * 100).toFixed(1)}%</div>
                 </div>
 
-                <div className="bg-black/40 border border-white/5 rounded-2xl p-5">
-                  <span className="text-slate-500 text-base font-bold">DYNAMIC RANGE</span>
-                  <div className="text-3xl font-black text-cyan-300 font-mono mt-2">{currentFrame.metrics.dynamic_range.toFixed(2)} dB</div>
+                <div className="bg-black/40 border border-white/5 rounded-xl p-3.5">
+                  <span className="text-slate-555 text-xs font-bold">DYNAMIC RANGE</span>
+                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{currentFrame.metrics.dynamic_range.toFixed(2)} dB</div>
                 </div>
 
               </CardContent>

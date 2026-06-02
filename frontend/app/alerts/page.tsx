@@ -15,7 +15,7 @@ export default function AlertsPage() {
       <main className="flex-1">
         <Topbar />
 
-        <div className="p-12">
+        <div className="p-6">
           <IncidentFeed incidents={incidents.data} />
         </div>
       </main>

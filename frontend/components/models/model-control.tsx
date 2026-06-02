@@ -20,7 +20,7 @@ export function ModelControl() {
   const isKNN = current.toLowerCase().includes("knn");
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-6">
       {/* Active Model Controls Card */}
       <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
