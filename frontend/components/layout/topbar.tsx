@@ -180,7 +180,6 @@ export function Topbar() {
   }, []);
 
   return (
-
     <div
       className="
         sticky
@@ -192,41 +191,37 @@ export function Topbar() {
         backdrop-blur-xl
       "
     >
-
       <div
         className="
           flex
           items-center
           justify-between
-          px-14
-          py-8
+          px-8
+          py-4
         "
       >
-
         <div>
-
           <div
             className="
               flex
               items-center
-              gap-5
+              gap-3
             "
           >
-
             <div
               className="
-                h-6
-                w-6
+                h-3
+                w-3
                 rounded-full
                 bg-green-400
                 animate-pulse
-                shadow-[0_0_25px_rgba(74,222,128,0.9)]
+                shadow-[0_0_15px_rgba(74,222,128,0.9)]
               "
             />
 
             <h1
               className="
-                text-[3.5rem]
+                text-[2.2rem]
                 font-black
                 leading-none
                 tracking-wide
@@ -235,52 +230,45 @@ export function Topbar() {
             >
               {meta.title}
             </h1>
-
           </div>
 
           <p
             className="
-              mt-4
-              ml-11
-              text-[1.5rem]
+              mt-1.5
+              ml-6
+              text-[1.05rem]
               font-medium
               text-slate-400
             "
           >
             {meta.subtitle}
           </p>
-
         </div>
 
         <div
           className="
             flex
             items-center
-            gap-6
+            gap-4
           "
         >
-
           <StatusCard
             icon={
               <ShieldCheck
                 className={`
-                  h-9
-                  w-9
+                  h-6
+                  w-6
                   ${isSecure ? "text-green-400" : "text-red-400"}
                 `}
               />
             }
-
             label="Threat Status"
-
             value={displayStatus}
-
             border={
               isSecure
                 ? "border-green-500/20 bg-green-500/10"
                 : "border-red-500/20 bg-red-500/10"
             }
-
             text={
               isSecure
                 ? "text-green-300"
@@ -292,22 +280,18 @@ export function Topbar() {
             icon={
               <Cpu
                 className="
-                  h-9
-                  w-9
+                  h-6
+                  w-6
                   text-cyan-400
                 "
               />
             }
-
             label="Active Model"
-
             value={activeModel}
-
             border="
               border-cyan-500/20
               bg-cyan-500/10
             "
-
             text="
               text-cyan-300
             "
@@ -317,23 +301,19 @@ export function Topbar() {
             icon={
               <Radio
                 className={`
-                  h-9
-                  w-9
+                  h-6
+                  w-6
                   ${hasTelemetry ? "text-purple-400 animate-pulse" : "text-slate-500"}
                 `}
               />
             }
-
             label="RF Stream"
-
             value={rfStreamState}
-
             border={
               hasTelemetry
                 ? "border-purple-500/20 bg-purple-500/10"
                 : "border-slate-500/20 bg-slate-500/10"
             }
-
             text={
               hasTelemetry
                 ? "text-purple-300"
@@ -345,23 +325,19 @@ export function Topbar() {
             icon={
               <Database
                 className={`
-                  h-9
-                  w-9
+                  h-6
+                  w-6
                   ${hasTelemetry ? "text-orange-400" : "text-slate-500"}
                 `}
               />
             }
-
             label="Backend"
-
             value={backendState}
-
             border={
               hasTelemetry
                 ? "border-orange-500/20 bg-orange-500/10"
                 : "border-slate-500/20 bg-slate-500/10"
             }
-
             text={
               hasTelemetry
                 ? "text-orange-300"
@@ -369,41 +345,38 @@ export function Topbar() {
             }
           />
 
-
           <div
             className="
-              rounded-[30px]
+              rounded-[20px]
               border
               border-blue-500/20
               bg-blue-500/10
-              px-7
-              py-5
-              min-w-[230px]
+              px-4
+              py-2.5
+              min-w-[160px]
             "
           >
-
             <div
               className="
                 flex
                 items-center
-                gap-4
+                gap-3
               "
             >
-
               <Clock3
                 className="
-                  h-9
-                  w-9
+                  h-6
+                  w-6
                   text-blue-400
                 "
               />
 
               <div>
-
                 <p
                   className="
-                    text-[1.1rem]
+                    text-[0.75rem]
                     text-slate-400
+                    leading-none
                   "
                 >
                   System Time
@@ -412,9 +385,10 @@ export function Topbar() {
                 <p
                   className="
                     mt-1
-                    text-[1.7rem]
+                    text-[1.1rem]
                     font-black
                     text-blue-300
+                    leading-none
                   "
                 >
                   {
@@ -423,103 +397,85 @@ export function Topbar() {
                       : "--:--:--"
                   }
                 </p>
-
               </div>
-
             </div>
-
           </div>
 
           <div
             className="
               flex
-              h-20
-              w-20
+              h-12
+              w-12
               items-center
               justify-center
-              rounded-[28px]
+              rounded-2xl
               border
               border-cyan-500/20
               bg-cyan-500/10
-              shadow-[0_0_30px_rgba(34,211,238,0.18)]
+              shadow-[0_0_20px_rgba(34,211,238,0.15)]
+              shrink-0
             "
           >
-
             <Activity
               className="
-                h-10
-                w-10
+                h-6
+                w-6
                 text-cyan-300
               "
             />
-
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }
 
 type StatusCardProps = {
-
   icon:
     React.ReactNode;
-
   label:
     string;
-
   value:
     string;
-
   border:
     string;
-
   text:
     string;
 };
 
 function StatusCard({
-
   icon,
   label,
   value,
   border,
   text
-
 }: StatusCardProps) {
-
   return (
-
     <div
       className={`
-        rounded-[30px]
+        rounded-[20px]
         border
-        px-7
-        py-5
-        min-w-[240px]
+        px-4
+        py-2.5
+        min-w-[160px]
         ${border}
       `}
     >
-
       <div
         className="
           flex
           items-center
-          gap-4
+          gap-3
         "
       >
-
         {icon}
 
         <div>
-
           <p
             className="
-              text-[1.1rem]
+              text-[0.75rem]
               text-slate-400
+              leading-none
             "
           >
             {label}
@@ -528,18 +484,16 @@ function StatusCard({
           <p
             className={`
               mt-1
-              text-[1.7rem]
+              text-[1.1rem]
               font-black
+              leading-none
               ${text}
             `}
           >
             {value}
           </p>
-
         </div>
-
       </div>
-
     </div>
   );
 }

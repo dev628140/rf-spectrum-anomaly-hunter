@@ -96,13 +96,14 @@ export function Sidebar() {
   return (
     <aside
       className="
-        w-[360px]
+        w-[260px]
         min-h-screen
         border-r
         border-cyan-500/10
         bg-[#050816]
         relative
         overflow-hidden
+        shrink-0
       "
     >
       {/* Background Glow */}
@@ -123,35 +124,35 @@ export function Sidebar() {
           flex-col
           justify-between
           h-full
-          px-7
-          py-8
+          px-5
+          py-6
         "
       >
         {/* Top Section */}
         <div>
           {/* Branding */}
-          <div className="flex items-start gap-5 mb-12">
+          <div className="flex items-center gap-3.5 mb-8">
             <div
               className="
-                h-16
-                w-16
-                rounded-2xl
+                h-12
+                w-12
+                rounded-xl
                 border
                 border-cyan-500/40
                 bg-cyan-500/10
                 flex
                 items-center
                 justify-center
-                shadow-[0_0_25px_rgba(0,255,255,0.15)]
+                shadow-[0_0_20px_rgba(0,255,255,0.15)]
               "
             >
-              <Shield className="h-9 w-9 text-cyan-300" />
+              <Shield className="h-6 w-6 text-cyan-300" />
             </div>
 
             <div className="flex flex-col justify-center">
               <div
                 className="
-                  text-[2.45rem]
+                  text-[1.8rem]
                   font-black
                   leading-[0.95]
                   tracking-tight
@@ -165,22 +166,20 @@ export function Sidebar() {
 
               <div
                 className="
-                  text-[1.22rem]
+                  text-[0.9rem]
                   text-cyan-200/80
                   leading-[1.25]
-                  mt-3
+                  mt-1.5
                   font-semibold
                 "
               >
-                Threat Intelligence
-                <br />
-                Platform
+                Threat Intelligence Platform
               </div>
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="space-y-5">
+          <div className="space-y-3">
             {items.map((item) => {
               const Icon = item.icon;
 
@@ -195,15 +194,15 @@ export function Sidebar() {
                   <div
                     className={`
                       group
-                      rounded-3xl
+                      rounded-2xl
                       border
                       transition-all
                       duration-300
-                      px-7
-                      py-6
+                      px-4
+                      py-3
                       flex
                       items-center
-                      gap-5
+                      gap-3.5
                       cursor-pointer
 
                       ${
@@ -211,7 +210,7 @@ export function Sidebar() {
                           ? `
                             bg-gradient-to-r
                             ${item.color}
-                            shadow-[0_0_35px_rgba(0,255,255,0.18)]
+                            shadow-[0_0_20px_rgba(0,255,255,0.15)]
                           `
                           : `
                             border-white/5
@@ -225,13 +224,14 @@ export function Sidebar() {
                     {/* Icon */}
                     <div
                       className={`
-                        h-16
-                        w-16
-                        rounded-2xl
+                        h-11
+                        w-11
+                        rounded-xl
                         flex
                         items-center
                         justify-center
                         border
+                        shrink-0
 
                         ${
                           active
@@ -242,8 +242,8 @@ export function Sidebar() {
                     >
                       <Icon
                         className={`
-                          h-9
-                          w-9
+                          h-5
+                          w-5
                           ${
                             active
                               ? "text-white"
@@ -254,12 +254,13 @@ export function Sidebar() {
                     </div>
 
                     {/* Text */}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col min-w-0">
                       <span
                         className={`
-                          text-[1.9rem]
+                          text-[1.15rem]
                           font-bold
                           leading-none
+                          truncate
 
                           ${
                             active
@@ -273,11 +274,12 @@ export function Sidebar() {
 
                       <span
                         className="
-                          text-[1.3rem]
-                          mt-2
+                          text-[0.8rem]
+                          mt-1
                           font-medium
                           leading-tight
                           text-slate-400
+                          truncate
                         "
                       >
                         {item.subtitle}
@@ -293,32 +295,31 @@ export function Sidebar() {
         {/* Bottom Status */}
         <div
           className="
-            rounded-3xl
+            rounded-2xl
             border
             border-cyan-500/10
             bg-white/[0.02]
-            p-7
-            mt-10
+            p-4
+            mt-6
           "
         >
           <div
             className="
-              text-[1.4rem]
+              text-[0.95rem]
               font-bold
               text-emerald-300
               tracking-wide
+              leading-snug
             "
           >
-            ALL SYSTEMS
-            <br />
-            OPERATIONAL
+            ALL SYSTEMS OPERATIONAL
           </div>
 
           <div
             className="
-              text-[1.05rem]
+              text-[0.8rem]
               text-slate-500
-              mt-3
+              mt-1.5
               font-medium
             "
           >
@@ -327,7 +328,7 @@ export function Sidebar() {
 
           <div
             className="
-              mt-8
+              mt-5
               flex
               items-center
               justify-between
@@ -336,7 +337,7 @@ export function Sidebar() {
             <div>
               <div
                 className="
-                  text-[1.4rem]
+                  text-[0.95rem]
                   font-bold
                   text-cyan-300
                 "
@@ -346,16 +347,16 @@ export function Sidebar() {
 
               <div
                 className="
-                  text-[1rem]
+                  text-[0.75rem]
                   text-slate-500
-                  mt-1
+                  mt-0.5
                 "
               >
                 RF Stream
               </div>
             </div>
 
-            <Radio className="h-8 w-8 text-cyan-300 animate-pulse" />
+            <Radio className="h-5 w-5 text-cyan-300 animate-pulse" />
           </div>
         </div>
       </div>
