@@ -253,30 +253,30 @@ export function RFWaterfall() {
   const fftBins = waterfall[0]?.length || 0;
 
   return (
-    <div className="rounded-[2rem] border border-cyan-500/10 bg-[#07111f] p-6 shadow-[0_0_60px_rgba(0,255,255,0.04)] h-full flex flex-col justify-between">
+    <div className="rounded-[1.5rem] border border-cyan-500/10 bg-[#07111f] p-4.5 shadow-[0_0_50px_rgba(0,255,255,0.03)] h-full flex flex-col justify-between">
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <div className="flex items-center gap-3">
-          <Flame className="h-6 w-6 text-cyan-300 animate-pulse" />
+      <div className="flex items-center justify-between mb-3 shrink-0">
+        <div className="flex items-center gap-2">
+          <Flame className="h-5 w-5 text-cyan-300 animate-pulse" />
           <div>
-            <div className="text-xl font-black text-white tracking-tight">RF Waterfall</div>
-            <div className="mt-1 text-xs font-semibold text-slate-300">
+            <div className="text-base font-black text-white tracking-tight">RF Waterfall</div>
+            <div className="mt-1 text-[10px] font-semibold text-slate-300">
               Realtime spectrogram rolling history (MHz)
             </div>
           </div>
         </div>
-        <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs font-bold text-cyan-300 tracking-widest font-mono uppercase">
+        <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300 tracking-widest font-mono uppercase">
           Live stream
         </div>
       </div>
 
-      {/* HEATMAP CANVAS CONTAINER (h-[280px]) */}
-      <div className="relative overflow-hidden rounded-2xl border border-cyan-500/15 bg-black p-1 group flex-1">
+      {/* HEATMAP CANVAS CONTAINER (h-[210px]) */}
+      <div className="relative overflow-hidden rounded-xl border border-cyan-500/15 bg-black p-1 group flex-1">
         <canvas
           ref={canvasRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          className="w-full h-[280px] bg-black rounded-xl cursor-crosshair block transition-all"
+          className="w-full h-[210px] bg-black rounded-lg cursor-crosshair block transition-all"
         />
 
         {/* Laser Grid Hover Crosshairs & Tooltip */}
@@ -291,13 +291,13 @@ export function RFWaterfall() {
               style={{ top: `${hoverInfo.y + 6}px` }}
             />
             <div
-              className="absolute pointer-events-none bg-slate-950/95 border border-cyan-500/35 rounded-xl px-3 py-2 text-xs font-mono text-white shadow-[0_0_15px_rgba(0,255,255,0.25)] backdrop-blur-md z-30 space-y-0.5 transition-all duration-75"
+              className="absolute pointer-events-none bg-slate-950/95 border border-cyan-500/35 rounded-xl px-2.5 py-1.5 text-[11px] font-mono text-white shadow-[0_0_12px_rgba(0,255,255,0.25)] backdrop-blur-md z-30 space-y-0.5 transition-all duration-75"
               style={{
-                left: `${Math.min(hoverInfo.x + 15, canvasRef.current ? canvasRef.current.offsetWidth - 160 : 0)}px`,
-                top: `${Math.min(hoverInfo.y + 15, canvasRef.current ? canvasRef.current.offsetHeight - 80 : 0)}px`
+                left: `${Math.min(hoverInfo.x + 15, canvasRef.current ? canvasRef.current.offsetWidth - 150 : 0)}px`,
+                top: `${Math.min(hoverInfo.y + 15, canvasRef.current ? canvasRef.current.offsetHeight - 70 : 0)}px`
               }}
             >
-              <div className="text-cyan-300 font-black tracking-wide text-[10px] flex items-center gap-1">
+              <div className="text-cyan-300 font-black tracking-wide text-[9px] flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
                 SPECTROGRAM POINT
               </div>
@@ -315,13 +315,13 @@ export function RFWaterfall() {
       </div>
 
       {/* COLOR LEGEND SCALE */}
-      <div className="mt-4 p-3 rounded-2xl border border-white/5 bg-black/25 flex flex-col gap-2 shrink-0">
-        <div className="flex justify-between items-center text-[10px] font-black font-mono text-slate-300 tracking-wider">
+      <div className="mt-3 p-2.5 rounded-xl border border-white/5 bg-black/25 flex flex-col gap-1.5 shrink-0">
+        <div className="flex justify-between items-center text-[9px] font-black font-mono text-slate-300 tracking-wider">
           <span>SPECTRAL ENERGY COLOR SCALE</span>
           <span className="text-cyan-400">dBm REFERENCE LEVEL</span>
         </div>
-        <div className="h-2.5 w-full rounded-full bg-gradient-to-r from-blue-950 via-purple-500 via-pink-500 to-yellow-200 border border-white/10 relative overflow-hidden" />
-        <div className="flex justify-between text-[9px] font-bold font-mono text-slate-200 tracking-wider">
+        <div className="h-2 w-full rounded-full bg-gradient-to-r from-blue-950 via-purple-500 via-pink-500 to-yellow-200 border border-white/10 relative overflow-hidden" />
+        <div className="flex justify-between text-[8px] font-bold font-mono text-slate-200 tracking-wider">
           <span className="text-blue-400">NOISE FLOOR (-120 dBm)</span>
           <span className="text-purple-400">MID LEVEL (-70 dBm)</span>
           <span className="text-yellow-300 animate-pulse">PEAK POWER (0 dBm)</span>
@@ -329,24 +329,24 @@ export function RFWaterfall() {
       </div>
 
       {/* FOOTER */}
-      <div className="mt-4 grid grid-cols-3 gap-4 shrink-0">
-        <div className="rounded-2xl border border-cyan-500/10 bg-cyan-500/[0.03] p-4 shadow-[0_0_15px_rgba(6,182,212,0.02)]">
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Time Slices</div>
-          <div className="mt-1 text-lg font-black text-cyan-300 font-mono">
+      <div className="mt-3 grid grid-cols-3 gap-3 shrink-0">
+        <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/[0.03] p-3 shadow-[0_0_10px_rgba(6,182,212,0.02)]">
+          <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Time Slices</div>
+          <div className="mt-0.5 text-sm font-black text-cyan-300 font-mono">
             {waterfall.length}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-cyan-500/10 bg-cyan-500/[0.03] p-4 shadow-[0_0_15px_rgba(6,182,212,0.02)]">
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">FFT Bins</div>
-          <div className="mt-1 text-lg font-black text-cyan-300 font-mono">
+        <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/[0.03] p-3 shadow-[0_0_10px_rgba(6,182,212,0.02)]">
+          <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider">FFT Bins</div>
+          <div className="mt-0.5 text-sm font-black text-cyan-300 font-mono">
             {fftBins}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-cyan-500/10 bg-cyan-500/[0.03] p-4 shadow-[0_0_15px_rgba(6,182,212,0.02)]">
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Stream State</div>
-          <div className="mt-1 text-lg font-black text-cyan-300 font-mono">
+        <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/[0.03] p-3 shadow-[0_0_10px_rgba(6,182,212,0.02)]">
+          <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Stream State</div>
+          <div className="mt-0.5 text-sm font-black text-cyan-300 font-mono">
             ACTIVE
           </div>
         </div>

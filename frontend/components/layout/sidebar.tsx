@@ -96,7 +96,7 @@ export function Sidebar() {
   return (
     <aside
       className="
-        w-[260px]
+        w-[220px]
         min-h-screen
         border-r
         border-cyan-500/10
@@ -124,18 +124,18 @@ export function Sidebar() {
           flex-col
           justify-between
           h-full
-          px-5
-          py-6
+          px-4
+          py-5
         "
       >
         {/* Top Section */}
         <div>
           {/* Branding */}
-          <div className="flex items-center gap-3.5 mb-8">
+          <div className="flex items-center gap-2.5 mb-6">
             <div
               className="
-                h-12
-                w-12
+                h-10
+                w-10
                 rounded-xl
                 border
                 border-cyan-500/40
@@ -143,16 +143,16 @@ export function Sidebar() {
                 flex
                 items-center
                 justify-center
-                shadow-[0_0_20px_rgba(0,255,255,0.15)]
+                shadow-[0_0_15px_rgba(0,255,255,0.15)]
               "
             >
-              <Shield className="h-6 w-6 text-cyan-300" />
+              <Shield className="h-5 w-5 text-cyan-300" />
             </div>
 
             <div className="flex flex-col justify-center">
               <div
                 className="
-                  text-[1.8rem]
+                  text-[1.35rem]
                   font-black
                   leading-[0.95]
                   tracking-tight
@@ -166,10 +166,10 @@ export function Sidebar() {
 
               <div
                 className="
-                  text-[0.9rem]
+                  text-[0.72rem]
                   text-cyan-200/80
                   leading-[1.25]
-                  mt-1.5
+                  mt-1
                   font-semibold
                 "
               >
@@ -179,7 +179,7 @@ export function Sidebar() {
           </div>
 
           {/* Navigation */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             {items.map((item) => {
               const Icon = item.icon;
 
@@ -194,15 +194,15 @@ export function Sidebar() {
                   <div
                     className={`
                       group
-                      rounded-2xl
+                      rounded-xl
                       border
                       transition-all
                       duration-300
-                      px-4
-                      py-3
+                      px-3
+                      py-2
                       flex
                       items-center
-                      gap-3.5
+                      gap-2.5
                       cursor-pointer
 
                       ${
@@ -210,7 +210,7 @@ export function Sidebar() {
                           ? `
                             bg-gradient-to-r
                             ${item.color}
-                            shadow-[0_0_20px_rgba(0,255,255,0.15)]
+                            shadow-[0_0_15px_rgba(0,255,255,0.15)]
                           `
                           : `
                             border-white/5
@@ -224,9 +224,9 @@ export function Sidebar() {
                     {/* Icon */}
                     <div
                       className={`
-                        h-11
-                        w-11
-                        rounded-xl
+                        h-8
+                        w-8
+                        rounded-lg
                         flex
                         items-center
                         justify-center
@@ -242,8 +242,8 @@ export function Sidebar() {
                     >
                       <Icon
                         className={`
-                          h-5
-                          w-5
+                          h-4
+                          w-4
                           ${
                             active
                               ? "text-white"
@@ -257,7 +257,7 @@ export function Sidebar() {
                     <div className="flex flex-col min-w-0">
                       <span
                         className={`
-                          text-[1.15rem]
+                          text-[0.92rem]
                           font-bold
                           leading-none
                           truncate
@@ -274,8 +274,8 @@ export function Sidebar() {
 
                       <span
                         className="
-                          text-[0.8rem]
-                          mt-1
+                          text-[0.7rem]
+                          mt-0.5
                           font-medium
                           leading-tight
                           text-slate-400
@@ -299,13 +299,13 @@ export function Sidebar() {
             border
             border-cyan-500/10
             bg-white/[0.02]
-            p-4
-            mt-6
+            p-3.5
+            mt-4
           "
         >
           <div
             className="
-              text-[0.95rem]
+              text-[0.82rem]
               font-bold
               text-emerald-300
               tracking-wide
@@ -317,9 +317,9 @@ export function Sidebar() {
 
           <div
             className="
-              text-[0.8rem]
+              text-[0.7rem]
               text-slate-500
-              mt-1.5
+              mt-1
               font-medium
             "
           >
@@ -328,7 +328,7 @@ export function Sidebar() {
 
           <div
             className="
-              mt-5
+              mt-3.5
               flex
               items-center
               justify-between
@@ -337,7 +337,7 @@ export function Sidebar() {
             <div>
               <div
                 className="
-                  text-[0.95rem]
+                  text-[0.82rem]
                   font-bold
                   text-cyan-300
                 "
@@ -347,7 +347,7 @@ export function Sidebar() {
 
               <div
                 className="
-                  text-[0.75rem]
+                  text-[0.68rem]
                   text-slate-500
                   mt-0.5
                 "
@@ -356,7 +356,7 @@ export function Sidebar() {
               </div>
             </div>
 
-            <Radio className="h-5 w-5 text-cyan-300 animate-pulse" />
+            <Radio className="h-4 w-4 text-cyan-300 animate-pulse" />
           </div>
         </div>
       </div>

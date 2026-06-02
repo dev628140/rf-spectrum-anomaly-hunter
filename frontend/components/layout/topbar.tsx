@@ -196,8 +196,8 @@ export function Topbar() {
           flex
           items-center
           justify-between
-          px-8
-          py-4
+          px-6
+          py-3
         "
       >
         <div>
@@ -205,23 +205,23 @@ export function Topbar() {
             className="
               flex
               items-center
-              gap-3
+              gap-2.5
             "
           >
             <div
               className="
-                h-3
-                w-3
+                h-2.5
+                w-2.5
                 rounded-full
                 bg-green-400
                 animate-pulse
-                shadow-[0_0_15px_rgba(74,222,128,0.9)]
+                shadow-[0_0_12px_rgba(74,222,128,0.9)]
               "
             />
 
             <h1
               className="
-                text-[2.2rem]
+                text-[1.65rem]
                 font-black
                 leading-none
                 tracking-wide
@@ -234,9 +234,9 @@ export function Topbar() {
 
           <p
             className="
-              mt-1.5
-              ml-6
-              text-[1.05rem]
+              mt-1
+              ml-5
+              text-[0.88rem]
               font-medium
               text-slate-400
             "
@@ -249,15 +249,15 @@ export function Topbar() {
           className="
             flex
             items-center
-            gap-4
+            gap-3
           "
         >
           <StatusCard
             icon={
               <ShieldCheck
                 className={`
-                  h-6
-                  w-6
+                  h-4.5
+                  w-4.5
                   ${isSecure ? "text-green-400" : "text-red-400"}
                 `}
               />
@@ -280,8 +280,8 @@ export function Topbar() {
             icon={
               <Cpu
                 className="
-                  h-6
-                  w-6
+                  h-4.5
+                  w-4.5
                   text-cyan-400
                 "
               />
@@ -301,8 +301,8 @@ export function Topbar() {
             icon={
               <Radio
                 className={`
-                  h-6
-                  w-6
+                  h-4.5
+                  w-4.5
                   ${hasTelemetry ? "text-purple-400 animate-pulse" : "text-slate-500"}
                 `}
               />
@@ -325,8 +325,8 @@ export function Topbar() {
             icon={
               <Database
                 className={`
-                  h-6
-                  w-6
+                  h-4.5
+                  w-4.5
                   ${hasTelemetry ? "text-orange-400" : "text-slate-500"}
                 `}
               />
@@ -347,26 +347,26 @@ export function Topbar() {
 
           <div
             className="
-              rounded-[20px]
+              rounded-[16px]
               border
               border-blue-500/20
               bg-blue-500/10
-              px-4
-              py-2.5
-              min-w-[160px]
+              px-3
+              py-1.5
+              min-w-[130px]
             "
           >
             <div
               className="
                 flex
                 items-center
-                gap-3
+                gap-2.5
               "
             >
               <Clock3
                 className="
-                  h-6
-                  w-6
+                  h-4.5
+                  w-4.5
                   text-blue-400
                 "
               />
@@ -374,7 +374,7 @@ export function Topbar() {
               <div>
                 <p
                   className="
-                    text-[0.75rem]
+                    text-[0.65rem]
                     text-slate-400
                     leading-none
                   "
@@ -384,8 +384,8 @@ export function Topbar() {
 
                 <p
                   className="
-                    mt-1
-                    text-[1.1rem]
+                    mt-0.5
+                    text-[0.92rem]
                     font-black
                     text-blue-300
                     leading-none
@@ -404,22 +404,22 @@ export function Topbar() {
           <div
             className="
               flex
-              h-12
-              w-12
+              h-9
+              w-9
               items-center
               justify-center
-              rounded-2xl
+              rounded-xl
               border
               border-cyan-500/20
               bg-cyan-500/10
-              shadow-[0_0_20px_rgba(34,211,238,0.15)]
+              shadow-[0_0_15px_rgba(34,211,238,0.15)]
               shrink-0
             "
           >
             <Activity
               className="
-                h-6
-                w-6
+                h-4.5
+                w-4.5
                 text-cyan-300
               "
             />
@@ -453,11 +453,11 @@ function StatusCard({
   return (
     <div
       className={`
-        rounded-[20px]
+        rounded-[16px]
         border
-        px-4
-        py-2.5
-        min-w-[160px]
+        px-3
+        py-1.5
+        min-w-[130px]
         ${border}
       `}
     >
@@ -465,7 +465,7 @@ function StatusCard({
         className="
           flex
           items-center
-          gap-3
+          gap-2.5
         "
       >
         {icon}
@@ -473,7 +473,7 @@ function StatusCard({
         <div>
           <p
             className="
-              text-[0.75rem]
+              text-[0.65rem]
               text-slate-400
               leading-none
             "
@@ -483,8 +483,8 @@ function StatusCard({
 
           <p
             className={`
-              mt-1
-              text-[1.1rem]
+              mt-0.5
+              text-[0.92rem]
               font-black
               leading-none
               ${text}
