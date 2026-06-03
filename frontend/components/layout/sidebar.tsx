@@ -156,7 +156,7 @@ export function Sidebar() {
             <div className="flex flex-col justify-center">
               <div
                 className="
-                  text-[1.38rem]
+                  text-[1.35rem]
                   font-black
                   leading-[0.95]
                   tracking-tight
@@ -170,7 +170,7 @@ export function Sidebar() {
 
               <div
                 className="
-                  text-[0.73rem]
+                  text-[0.72rem]
                   text-cyan-200/80
                   leading-[1.25]
                   mt-1
@@ -282,7 +282,7 @@ export function Sidebar() {
                     <div className="flex flex-col min-w-0">
                       <span
                         className={`
-                          text-[0.98rem]
+                          text-[0.94rem]
                           font-bold
                           leading-none
                           truncate
@@ -299,7 +299,7 @@ export function Sidebar() {
 
                       <span
                         className="
-                          text-[0.74rem]
+                          text-[0.70rem]
                           mt-0.5
                           font-medium
                           leading-tight
