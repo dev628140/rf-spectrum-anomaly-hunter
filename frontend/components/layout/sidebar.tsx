@@ -156,7 +156,7 @@ export function Sidebar() {
             <div className="flex flex-col justify-center">
               <div
                 className="
-                  text-[1.35rem]
+                  text-[1.48rem]
                   font-black
                   leading-[0.95]
                   tracking-tight
@@ -170,7 +170,7 @@ export function Sidebar() {
 
               <div
                 className="
-                  text-[0.72rem]
+                  text-[0.78rem]
                   text-cyan-200/80
                   leading-[1.25]
                   mt-1
@@ -183,7 +183,7 @@ export function Sidebar() {
           </div>
 
           {/* Navigation */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {items.map((item) => {
               const Icon = item.icon;
 
@@ -282,7 +282,7 @@ export function Sidebar() {
                     <div className="flex flex-col min-w-0">
                       <span
                         className={`
-                          text-[0.92rem]
+                          text-[0.98rem]
                           font-bold
                           leading-none
                           truncate
@@ -299,7 +299,7 @@ export function Sidebar() {
 
                       <span
                         className="
-                          text-[0.7rem]
+                          text-[0.76rem]
                           mt-0.5
                           font-medium
                           leading-tight
@@ -330,9 +330,9 @@ export function Sidebar() {
         >
           <div
             className="
-              text-[0.82rem]
+              text-[0.88rem]
               font-bold
-              text-emerald-300
+              text-emerald-350
               tracking-wide
               leading-snug
             "
@@ -342,8 +342,8 @@ export function Sidebar() {
 
           <div
             className="
-              text-[0.7rem]
-              text-slate-500
+              text-[0.76rem]
+              text-slate-400
               mt-1
               font-medium
             "
@@ -362,7 +362,7 @@ export function Sidebar() {
             <div>
               <div
                 className="
-                  text-[0.82rem]
+                  text-[0.88rem]
                   font-bold
                   text-cyan-300
                 "
@@ -372,8 +372,8 @@ export function Sidebar() {
 
               <div
                 className="
-                  text-[0.68rem]
-                  text-slate-500
+                  text-[0.74rem]
+                  text-slate-400
                   mt-0.5
                 "
               >
