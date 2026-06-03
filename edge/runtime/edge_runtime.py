@@ -195,6 +195,22 @@ class EdgeRuntime:
             )
 
             """
+            WRITE DB METRIC
+            """
+            try:
+                import numpy as np
+                from backend.db.db_service import db_service
+                db_service.create_rf_metric(
+                    mean_power=float(window.mean()),
+                    peak_power=float(window.max()),
+                    min_power=float(window.min()),
+                    dynamic_range=float(window.max() - window.min()),
+                    occupancy_percent=float(np.mean(window > -40) * 100)
+                )
+            except Exception as db_met_err:
+                logger.error(f"Failed to write RF Metric to DB: {db_met_err}")
+
+            """
             WRITE STATE
             """
 

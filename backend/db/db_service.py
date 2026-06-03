@@ -42,7 +42,8 @@ class DBService:
                 latency=latency,
                 min_value=min_value,
                 max_value=max_value,
-                timestamp=dt_timestamp
+                timestamp=dt_timestamp,
+                resolved=False
             )
 
             db.add(incident)
@@ -184,6 +185,19 @@ class DBService:
             )
 
         
+        finally:
+            db.close()
+
+    def resolve_incident(self, incident_id):
+        db = SessionLocal()
+        try:
+            incident = db.query(Incident).filter(Incident.id == incident_id).first()
+            if incident:
+                incident.resolved = True
+                db.commit()
+                db.refresh(incident)
+                return incident
+            return None
         finally:
             db.close()
 

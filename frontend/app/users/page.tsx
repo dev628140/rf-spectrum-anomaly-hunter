@@ -6,6 +6,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Shield, Key, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
 
 const operators = [
   {
@@ -51,7 +52,7 @@ export default function UsersPage() {
   const [rotatedToken, setRotatedToken] = useState<string>("");
   const [isRotating, setIsRotating] = useState(false);
 
-  const rotateKeyToken = () => {
+  const rotateKeyToken = async () => {
     setIsRotating(true);
     setRotatedToken("");
     
@@ -64,11 +65,22 @@ export default function UsersPage() {
       }
       setRotatedToken(hash);
       cycles++;
-      if (cycles > 12) {
-        clearInterval(interval);
-        setIsRotating(false);
-      }
     }, 100);
+
+    try {
+      const res = await api.post("/api/system/rotate-cert");
+      setTimeout(() => {
+        clearInterval(interval);
+        setRotatedToken(res.data.sha256);
+        setIsRotating(false);
+      }, 1300);
+    } catch (err) {
+      setTimeout(() => {
+        clearInterval(interval);
+        setRotatedToken("ERROR: Failed to rotate SSL certificate token from backend.");
+        setIsRotating(false);
+      }, 1300);
+    }
   };
 
   return (

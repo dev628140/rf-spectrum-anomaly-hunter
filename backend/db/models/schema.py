@@ -4,7 +4,8 @@ from sqlalchemy import (
     Float,
     String,
     Text,
-    DateTime
+    DateTime,
+    Boolean
 )
 from datetime import datetime
 
@@ -25,6 +26,7 @@ class Incident(Base):
     latency = Column(Float, nullable=True)
     min_value = Column(Float, nullable=True)
     max_value = Column(Float, nullable=True)
+    resolved = Column(Boolean, default=False, nullable=True)
 
 
 class AlertLog(Base):

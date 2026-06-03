@@ -18,6 +18,7 @@ import {
   TrendingUp,
   Skull
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function AlertsPage() {
   const incidentsQuery = useIncidents();
@@ -38,15 +39,27 @@ export default function AlertsPage() {
 
   const activeIncident = filteredIncidents[selectedIdx] || filteredIncidents[0] || null;
 
-  const handleResolve = (id: string) => {
+  const handleResolve = async (id: string) => {
     setResolvedMap((prev) => ({ ...prev, [id]: true }));
+    try {
+      await api.post(`/api/history/incidents/${id}/resolve`);
+      incidentsQuery.refetch();
+    } catch (err) {
+      console.error("Failed to mark alert as resolved in DB:", err);
+    }
   };
 
-  const handleDispatch = (id: string) => {
+  const handleDispatch = async (id: string) => {
     setDispatchedIds((prev) => ({ ...prev, [id]: true }));
-    setTimeout(() => {
-      handleResolve(id);
-    }, 1500);
+    try {
+      await api.post(`/api/history/incidents/${id}/resolve`);
+      setTimeout(() => {
+        setResolvedMap((prev) => ({ ...prev, [id]: true }));
+        incidentsQuery.refetch();
+      }, 1500);
+    } catch (err) {
+      console.error("Failed to dispatch jamming resolution protocol:", err);
+    }
   };
 
   // Helper for severity levels
@@ -238,7 +251,7 @@ export default function AlertsPage() {
                     filteredIncidents.map((incident: any, idx: number) => {
                       const colors = getSeverityStyle(incident.severity);
                       const isSelected = activeIncident?.id === incident.id;
-                      const isResolved = resolvedMap[incident.id];
+                      const isResolved = resolvedMap[incident.id] || incident.resolved;
                       const date = new Date(incident.timestamp);
                       const timeStr = isNaN(date.getTime())
                         ? incident.timestamp
@@ -305,11 +318,11 @@ export default function AlertsPage() {
                       <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
                         <span className="text-slate-400 font-medium">Incident Status</span>
                         <span className={`px-2.5 py-0.5 rounded font-black text-xs border ${
-                          resolvedMap[activeIncident.id]
+                          (resolvedMap[activeIncident.id] || activeIncident.resolved)
                             ? "bg-green-500/10 border-green-500/30 text-green-400"
                             : "bg-red-500/10 border-red-500/30 text-red-400 animate-pulse"
                         }`}>
-                          {resolvedMap[activeIncident.id] ? "RESOLVED" : "THREAT ACTIVE"}
+                          {(resolvedMap[activeIncident.id] || activeIncident.resolved) ? "RESOLVED" : "THREAT ACTIVE"}
                         </span>
                       </div>
 
@@ -362,7 +375,7 @@ export default function AlertsPage() {
                   )}
                 </div>
 
-                {activeIncident && !resolvedMap[activeIncident.id] && (
+                {activeIncident && !(resolvedMap[activeIncident.id] || activeIncident.resolved) && (
                   <div className="pt-6 border-t border-cyan-500/10 flex flex-col gap-2 shrink-0">
                     <Button 
                       onClick={() => handleDispatch(activeIncident.id)}

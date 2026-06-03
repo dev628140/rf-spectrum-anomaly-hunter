@@ -22,11 +22,20 @@ def get_incidents():
                 "summary": r.summary,
                 "latency": r.latency,
                 "min_value": r.min_value,
-                "max_value": r.max_value
+                "max_value": r.max_value,
+                "resolved": getattr(r, "resolved", False)
             }
             for r in rows
         ]
     }
+
+
+@router.post("/incidents/{incident_id}/resolve")
+def resolve_incident(incident_id: int):
+    res = db_service.resolve_incident(incident_id)
+    if res:
+        return {"status": "SUCCESS", "message": f"Incident {incident_id} marked as resolved."}
+    return {"status": "FAILED", "message": f"Incident {incident_id} not found."}
 
 
 @router.get("/alerts")

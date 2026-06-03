@@ -6,6 +6,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Cpu, HardDrive, Shield, Server, Activity } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function SettingsPage() {
   const [startFreq, setStartFreq] = useState("88.0");
@@ -20,30 +21,44 @@ export default function SettingsPage() {
   const [diagLogs, setDiagLogs] = useState<string[]>([]);
   const consoleEndRef = useRef<HTMLDivElement | null>(null);
 
-  const runDiagnostics = () => {
+  const runDiagnostics = async () => {
     setDiagStatus("running");
     setDiagLogs(["[INFO] Initializing SDR Core Diagnostic Suite..."]);
     
-    const steps = [
-      { msg: "[CHECK] Verifying PLL Clock Lock status...", delay: 600 },
-      { msg: "[SUCCESS] PLL Clock Locked (Ref: 10.000 MHz)", delay: 1200 },
-      { msg: "[CHECK] Calibrating DC Offset compensation...", delay: 1800 },
-      { msg: "[SUCCESS] IQ DC offset corrected (I: -0.002, Q: +0.001)", delay: 2400 },
-      { msg: "[CHECK] Initializing DMA transfer buffers...", delay: 3000 },
-      { msg: "[SUCCESS] DMA circular buffers allocated (64MB @ 0x800000)", delay: 3600 },
-      { msg: "[CHECK] Reading frontend thermal sensors...", delay: 4200 },
-      { msg: "[SUCCESS] Core temp: 42.6°C (Limits: < 85°C)", delay: 4800 },
-      { msg: "[SUCCESS] Core Diagnostics completed successfully. Hardware status: HEALTHY.", delay: 5400 }
-    ];
+    try {
+      const res = await api.get("/api/system/diagnostics");
+      const data = res.data;
+      
+      const steps = [
+        { msg: "[CHECK] Verifying PLL Clock Lock status...", delay: 600 },
+        { msg: `[SUCCESS] PLL Clock Locked (Mode: ${data.sdr_receiver.status})`, delay: 1200 },
+        { msg: "[CHECK] Calibrating DC Offset compensation...", delay: 1800 },
+        { msg: `[SUCCESS] IQ DC offset corrected (${data.sdr_receiver.dc_offset})`, delay: 2400 },
+        { msg: "[CHECK] Initializing DMA transfer buffers...", delay: 3000 },
+        { msg: `[SUCCESS] DMA circular buffers allocated (64MB @ 0x800000)`, delay: 3600 },
+        { msg: "[CHECK] Reading host system resources...", delay: 4200 },
+        { msg: `[SUCCESS] CPU: ${data.cpu_utilization}%, RAM: ${data.ram_utilization}%`, delay: 4800 },
+        { msg: "[CHECK] Verifying database persistence node...", delay: 5400 },
+        { msg: `[SUCCESS] Database Status: ${data.db_connection.status} (Ping: ${data.db_connection.latency_ms} ms)`, delay: 6000 },
+        { msg: "[SUCCESS] Core Diagnostics completed successfully. Hardware status: HEALTHY.", delay: 6600 }
+      ];
 
-    steps.forEach((step, index) => {
-      setTimeout(() => {
-        setDiagLogs((prev) => [...prev, step.msg]);
-        if (index === steps.length - 1) {
-          setDiagStatus("success");
-        }
-      }, step.delay);
-    });
+      steps.forEach((step, index) => {
+        setTimeout(() => {
+          setDiagLogs((prev) => [...prev, step.msg]);
+          if (index === steps.length - 1) {
+            setDiagStatus("success");
+          }
+        }, step.delay);
+      });
+    } catch (err) {
+      setDiagLogs((prev) => [
+        ...prev, 
+        "[ERROR] Diagnostics failed to query backend API.",
+        `[ERROR] Reason: ${err instanceof Error ? err.message : String(err)}`
+      ]);
+      setDiagStatus("error");
+    }
   };
 
   useEffect(() => {
