@@ -10,11 +10,13 @@ import {
   Shield,
   Radio,
   Settings,
-  Users
+  Users,
+  Lock
 } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
 
 const items = [
   {
@@ -92,6 +94,8 @@ const items = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuthStore();
+  const isGuest = user?.role === "guest";
 
   return (
     <aside
@@ -189,6 +193,7 @@ export function Sidebar() {
 
               const active =
                 pathname === item.href;
+              const locked = isGuest && ["/settings", "/users", "/history", "/models"].includes(item.href);
 
               return (
                 <Link
@@ -279,7 +284,7 @@ export function Sidebar() {
                     </div>
 
                     {/* Text */}
-                    <div className="flex flex-col min-w-0">
+                    <div className="flex flex-col min-w-0 flex-1">
                       <span
                         className={`
                           text-[0.92rem]
@@ -310,6 +315,10 @@ export function Sidebar() {
                         {item.subtitle}
                       </span>
                     </div>
+
+                    {locked && (
+                      <Lock className="h-3.5 w-3.5 text-red-400/80 shrink-0 ml-auto mr-1 animate-pulse" />
+                    )}
                   </div>
                 </Link>
               );

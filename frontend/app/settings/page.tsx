@@ -5,8 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Cpu, HardDrive, Shield, Server, Activity } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/auth-store";
+import { RestrictedOverlay } from "@/components/restricted-overlay";
 
 export default function SettingsPage() {
+  const { user } = useAuthStore();
+  const isGuest = user?.role === "guest";
+  const isUser = user?.role === "user";
+
   const [startFreq, setStartFreq] = useState("88.0");
   const [endFreq, setEndFreq] = useState("108.0");
   const [scanInterval, setScanInterval] = useState("2");
@@ -72,8 +78,9 @@ export default function SettingsPage() {
   };
 
   return (
-    <>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div className="relative min-h-[calc(100vh-120px)] w-full flex flex-col gap-6">
+      {isGuest && <RestrictedOverlay message="System configuration panel requires administrative clearance." />}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             
             {/* RF Parameters Card */}
             <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
@@ -91,7 +98,8 @@ export default function SettingsPage() {
                         type="text"
                         value={startFreq}
                         onChange={(e) => setStartFreq(e.target.value)}
-                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400"
+                        disabled={isUser}
+                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -101,7 +109,8 @@ export default function SettingsPage() {
                         type="text"
                         value={endFreq}
                         onChange={(e) => setEndFreq(e.target.value)}
-                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400"
+                        disabled={isUser}
+                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -113,7 +122,8 @@ export default function SettingsPage() {
                         type="text"
                         value={scanInterval}
                         onChange={(e) => setScanInterval(e.target.value)}
-                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400"
+                        disabled={isUser}
+                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -122,7 +132,8 @@ export default function SettingsPage() {
                       <select
                         value={fftSize}
                         onChange={(e) => setFftSize(e.target.value)}
-                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400"
+                        disabled={isUser}
+                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <option value="512">512 bins</option>
                         <option value="1024">1024 bins</option>
@@ -139,7 +150,8 @@ export default function SettingsPage() {
                         type="text"
                         value={sampleRate}
                         onChange={(e) => setSampleRate(e.target.value)}
-                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400"
+                        disabled={isUser}
+                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -149,14 +161,19 @@ export default function SettingsPage() {
                         type="text"
                         value={gain}
                         onChange={(e) => setGain(e.target.value)}
-                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400"
+                        disabled={isUser}
+                        className="w-full bg-black/40 border border-cyan-500/20 rounded-xl px-3 py-2 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
 
                   <div className="pt-4">
-                    <Button type="submit" className="w-full py-2.5 text-sm font-bold bg-cyan-500 hover:bg-cyan-400 text-black rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all duration-300">
-                      Save Parameters
+                    <Button 
+                      type="submit" 
+                      disabled={isUser}
+                      className="w-full py-2.5 text-sm font-bold bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-700 disabled:text-slate-400 text-black rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.25)] disabled:shadow-none transition-all duration-300"
+                    >
+                      {isUser ? "Parameter Write Locked (Admin Only)" : "Save Parameters"}
                     </Button>
                   </div>
 
@@ -361,6 +378,6 @@ export default function SettingsPage() {
             </Card>
 
           </div>
-    </>
+    </div>
   );
 }

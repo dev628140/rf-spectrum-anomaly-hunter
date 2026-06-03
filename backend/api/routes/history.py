@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Header, HTTPException
 from backend.db.db_service import db_service
 
 router = APIRouter(prefix="/api/history")
@@ -31,7 +31,9 @@ def get_incidents():
 
 
 @router.post("/incidents/{incident_id}/resolve")
-def resolve_incident(incident_id: int):
+def resolve_incident(incident_id: int, x_role: str = Header(default="guest")):
+    if x_role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden: Admin clearance required.")
     res = db_service.resolve_incident(incident_id)
     if res:
         return {"status": "SUCCESS", "message": f"Incident {incident_id} marked as resolved."}

@@ -3,7 +3,7 @@ import os
 import time
 from datetime import datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Header, HTTPException
 from backend.core.config import HEALTH_PATH
 
 router = APIRouter()
@@ -72,7 +72,9 @@ def get_diagnostics():
 
 
 @router.post("/api/system/rotate-cert")
-def rotate_cert():
+def rotate_cert(x_role: str = Header(default="guest")):
+    if x_role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden: Admin clearance required.")
     import hashlib
     # Generate a real random X.509 signature hash
     seed = f"sdr-node-token-rotation-{time.time()}"

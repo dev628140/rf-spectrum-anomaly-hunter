@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 
 from backend.services.service_container import inference_service
@@ -12,7 +12,9 @@ class ModelSelectionRequest(BaseModel):
 
 
 @router.post("/select")
-def select_model(request: ModelSelectionRequest):
+def select_model(request: ModelSelectionRequest, x_role: str = Header(default="guest")):
+    if x_role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden: Admin clearance required.")
     previous_model = inference_service.current_model()
 
     if previous_model == request.model:

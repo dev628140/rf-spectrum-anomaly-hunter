@@ -16,8 +16,11 @@ import {
   Skull
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function AlertsPage() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
   const incidentsQuery = useIncidents();
   const rawIncidents = incidentsQuery.data?.data || [];
 
@@ -277,9 +280,10 @@ export default function AlertsPage() {
                 <div className="pt-6 border-t border-cyan-500/10 flex flex-col gap-2 shrink-0">
                   <Button 
                     onClick={() => handleResolve(activeIncident.id)}
-                    className="w-full py-2.5 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-black rounded-xl shadow-lg transition-all"
+                    disabled={!isAdmin}
+                    className="w-full py-2.5 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-700 disabled:text-slate-400 text-black rounded-xl shadow-lg disabled:shadow-none transition-all"
                   >
-                    Dismiss Active Alert Indicator
+                    {!isAdmin ? "Dismiss Locked (Admin Only)" : "Dismiss Active Alert Indicator"}
                   </Button>
                 </div>
               )}

@@ -5,8 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Shield, Key, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/auth-store";
+import { RestrictedOverlay } from "@/components/restricted-overlay";
 
 export default function UsersPage() {
+  const { user } = useAuthStore();
+  const isGuest = user?.role === "guest";
+  const isUser = user?.role === "user";
+
   const [operators, setOperators] = useState<any[]>([]);
   const [audits, setAudits] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -191,7 +197,8 @@ export default function UsersPage() {
   const currentOp = operators[selectedUserIdx] || operators[0] || null;
 
   return (
-    <>
+    <div className="relative min-h-[calc(100vh-120px)] w-full flex flex-col gap-6">
+      {isGuest && <RestrictedOverlay message="Access Governance panel requires administrative clearance." />}
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -205,10 +212,11 @@ export default function UsersPage() {
         </div>
         <Button 
           onClick={openProvisionModal}
-          className="py-2 px-4 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.25)] flex items-center gap-2 transition-all duration-300 hover:scale-[1.02]"
+          disabled={isUser}
+          className="py-2 px-4 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-700 disabled:text-slate-400 disabled:scale-100 disabled:shadow-none text-black rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.25)] flex items-center gap-2 transition-all duration-300 hover:scale-[1.02]"
         >
           <Plus className="h-4.5 w-4.5 stroke-[2.5]" />
-          Provision Operator
+          {isUser ? "Provision Locked" : "Provision Operator"}
         </Button>
       </div>
 
@@ -276,9 +284,10 @@ export default function UsersPage() {
                         e.stopPropagation();
                         openModifyModal(op);
                       }}
-                      className="h-8 px-3.5 border-cyan-500/20 hover:border-cyan-400 bg-transparent text-cyan-300 font-bold text-xs rounded-lg"
+                      disabled={isUser}
+                      className="h-8 px-3.5 border-cyan-500/20 hover:border-cyan-400 disabled:border-slate-800 disabled:text-slate-500 bg-transparent text-cyan-300 font-bold text-xs rounded-lg"
                     >
-                      Modify Scopes
+                      {isUser ? "Locked" : "Modify Scopes"}
                     </Button>
                   </div>
                 </div>
@@ -334,10 +343,10 @@ export default function UsersPage() {
           <div className="pt-4">
             <Button
               onClick={rotateKeyToken}
-              disabled={isRotating}
-              className="w-full py-2 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-700 text-black rounded-lg transition-all"
+              disabled={isRotating || isUser}
+              className="w-full py-2 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-700 disabled:text-slate-400 text-black rounded-lg transition-all"
             >
-              {isRotating ? "Rotating Access Keys..." : "Rotate & Verify X.509 Certificates"}
+              {isRotating ? "Rotating Access Keys..." : isUser ? "Cert Rotation Locked (Admin Only)" : "Rotate & Verify X.509 Certificates"}
             </Button>
           </div>
         </Card>
@@ -679,6 +688,6 @@ export default function UsersPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

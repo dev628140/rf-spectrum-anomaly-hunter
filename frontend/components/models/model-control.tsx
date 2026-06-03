@@ -2,8 +2,14 @@ import { Button } from "@/components/ui/button";
 import { useModelHistory, useSwitchModel } from "@/hooks/use-model";
 import { Cpu, RefreshCw, CheckCircle2, History, AlertTriangle, Layers, Activity } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuthStore } from "@/store/auth-store";
+import { RestrictedOverlay } from "@/components/restricted-overlay";
 
 export function ModelControl() {
+  const { user } = useAuthStore();
+  const isGuest = user?.role === "guest";
+  const isUser = user?.role === "user";
+
   const history = useModelHistory();
   const switchModel = useSwitchModel();
 
@@ -20,7 +26,8 @@ export function ModelControl() {
   const isKNN = current.toLowerCase().includes("knn");
 
   return (
-    <div className="space-y-6">
+    <div className="relative min-h-[calc(100vh-120px)] w-full space-y-6">
+      {isGuest && <RestrictedOverlay message="Model operations governance console requires administrative clearance." />}
       {/* Active Model Controls Card */}
       <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -60,15 +67,15 @@ export function ModelControl() {
                 className={`mt-4 w-full py-3 text-xs font-black transition-all ${
                   isAE
                     ? "bg-cyan-500 text-black shadow-md cursor-default"
-                    : "bg-transparent border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white"
+                    : "bg-transparent border border-white/10 hover:border-cyan-500/40 disabled:border-slate-800 disabled:text-slate-500 text-slate-300 hover:text-white"
                 }`}
-                disabled={switchModel.isPending || isAE}
+                disabled={switchModel.isPending || isAE || isUser}
                 onClick={() => switchModel.mutate("autoencoder")}
               >
                 {switchModel.isPending && isAE ? (
                   <RefreshCw className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                 ) : null}
-                {isAE ? "Active Baseline Engine" : "Switch to Autoencoder"}
+                {isAE ? "Active Baseline Engine" : isUser ? "Model Switch Locked (Admin Only)" : "Switch to Autoencoder"}
               </Button>
             </div>
 
@@ -96,15 +103,15 @@ export function ModelControl() {
                 className={`mt-4 w-full py-3 text-xs font-black transition-all ${
                   isRF
                     ? "bg-purple-500 text-white shadow-md cursor-default"
-                    : "bg-transparent border border-white/10 hover:border-purple-500/40 text-slate-300 hover:text-white"
+                    : "bg-transparent border border-white/10 hover:border-purple-500/40 disabled:border-slate-800 disabled:text-slate-500 text-slate-300 hover:text-white"
                 }`}
-                disabled={switchModel.isPending || isRF}
+                disabled={switchModel.isPending || isRF || isUser}
                 onClick={() => switchModel.mutate("random_forest")}
               >
                 {switchModel.isPending && isRF ? (
                   <RefreshCw className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                 ) : null}
-                {isRF ? "Active Classifier Engine" : "Switch to Random Forest"}
+                {isRF ? "Active Classifier Engine" : isUser ? "Model Switch Locked (Admin Only)" : "Switch to Random Forest"}
               </Button>
             </div>
 
@@ -132,15 +139,15 @@ export function ModelControl() {
                 className={`mt-4 w-full py-3 text-xs font-black transition-all ${
                   isKNN
                     ? "bg-teal-500 text-black shadow-md cursor-default"
-                    : "bg-transparent border border-white/10 hover:border-teal-500/40 text-slate-300 hover:text-white"
+                    : "bg-transparent border border-white/10 hover:border-teal-500/40 disabled:border-slate-800 disabled:text-slate-500 text-slate-300 hover:text-white"
                 }`}
-                disabled={switchModel.isPending || isKNN}
+                disabled={switchModel.isPending || isKNN || isUser}
                 onClick={() => switchModel.mutate("knn")}
               >
                 {switchModel.isPending && isKNN ? (
                   <RefreshCw className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                 ) : null}
-                {isKNN ? "Active KNN Engine" : "Switch to KNN"}
+                {isKNN ? "Active KNN Engine" : isUser ? "Model Switch Locked (Admin Only)" : "Switch to KNN"}
               </Button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel, Field
 from typing import Optional
 from backend.db.db_service import db_service
@@ -22,7 +22,9 @@ class OperatorUpdate(BaseModel):
     scope: Optional[str] = None
 
 @router.get("/api/system/operators")
-def get_operators():
+def get_operators(x_role: str = Header(default="guest")):
+    if x_role not in ["admin", "user"]:
+        raise HTTPException(status_code=403, detail="Forbidden: Higher clearance level required.")
     try:
         operators = db_service.get_all_operators()
         return {
@@ -45,7 +47,9 @@ def get_operators():
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/api/system/operators")
-def create_operator(payload: OperatorCreate):
+def create_operator(payload: OperatorCreate, x_role: str = Header(default="guest")):
+    if x_role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden: Admin clearance required.")
     try:
         op = db_service.create_operator(
             name=payload.name,
@@ -79,7 +83,9 @@ def create_operator(payload: OperatorCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/api/system/operators/{operator_id}")
-def update_operator(operator_id: int, payload: OperatorUpdate):
+def update_operator(operator_id: int, payload: OperatorUpdate, x_role: str = Header(default="guest")):
+    if x_role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden: Admin clearance required.")
     try:
         op = db_service.update_operator(
             operator_id=operator_id,
@@ -118,7 +124,9 @@ def update_operator(operator_id: int, payload: OperatorUpdate):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/api/system/operators/{operator_id}")
-def delete_operator(operator_id: int):
+def delete_operator(operator_id: int, x_role: str = Header(default="guest")):
+    if x_role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden: Admin clearance required.")
     try:
         db = SessionLocal()
         op = db.query(DBOperator).filter(DBOperator.id == operator_id).first()
@@ -146,7 +154,9 @@ def delete_operator(operator_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/api/system/audits")
-def get_audits(limit: int = 50):
+def get_audits(limit: int = 50, x_role: str = Header(default="guest")):
+    if x_role not in ["admin", "user"]:
+        raise HTTPException(status_code=403, detail="Forbidden: Higher clearance level required.")
     db = SessionLocal()
     try:
         rows = (

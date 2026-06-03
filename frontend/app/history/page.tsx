@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useIncidents, useHistoryMetrics } from "@/hooks/use-history";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/auth-store";
+import { RestrictedOverlay } from "@/components/restricted-overlay";
 import {
   Play,
   Pause,
@@ -70,6 +72,9 @@ const generateHistoricalFrame = (index: number) => {
 const historicalTimeline = Array.from({ length: 50 }, (_, i) => generateHistoricalFrame(i));
 
 export default function HistoryPage() {
+  const { user } = useAuthStore();
+  const isGuest = user?.role === "guest";
+
   const incidentsQuery = useIncidents();
   const metricsQuery = useHistoryMetrics();
 
@@ -216,8 +221,9 @@ export default function HistoryPage() {
   };
 
   return (
-    <>
-          {/* Forensic Playback Controls Toolbar */}
+    <div className="relative min-h-[calc(100vh-120px)] w-full flex flex-col gap-6">
+      {isGuest && <RestrictedOverlay message="Forensic replay timeline analysis requires operator or administrative clearance." />}
+      {/* Forensic Playback Controls Toolbar */}
           <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_40px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               
@@ -507,6 +513,6 @@ export default function HistoryPage() {
             </Card>
 
           </div>
-    </>
+    </div>
   );
 }

@@ -2,11 +2,14 @@
 
 import { useEffect } from "react";
 import { useRFStore } from "@/store/rf-store";
+import { useAuthStore } from "@/store/auth-store";
 
 export function useLiveRF() {
   const setRFData = useRFStore((state) => state.setRFData);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     let ws: WebSocket | null = null;
     let timeoutId: NodeJS.Timeout | null = null;
     let isCleanup = false;
@@ -69,5 +72,5 @@ export function useLiveRF() {
       if (ws) ws.close();
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [setRFData]);
+  }, [setRFData, isAuthenticated]);
 }
