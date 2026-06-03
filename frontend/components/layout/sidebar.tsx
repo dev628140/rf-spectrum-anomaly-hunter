@@ -183,7 +183,7 @@ export function Sidebar() {
           </div>
 
           {/* Navigation */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             {items.map((item) => {
               const Icon = item.icon;
 
@@ -282,7 +282,7 @@ export function Sidebar() {
                     <div className="flex flex-col min-w-0">
                       <span
                         className={`
-                          text-[0.98rem]
+                          text-[1.05rem]
                           font-bold
                           leading-none
                           truncate
@@ -299,7 +299,7 @@ export function Sidebar() {
 
                       <span
                         className="
-                          text-[0.76rem]
+                          text-[0.82rem]
                           mt-0.5
                           font-medium
                           leading-tight

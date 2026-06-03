@@ -19,6 +19,10 @@
   --border: #1e293b;
 }
 
+html {
+  font-size: 17px; /* Globally scales all Tailwind rem-based fonts and components up by ~6.25% */
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
