@@ -70,4 +70,6 @@ class Operator(Base):
     status = Column(String(50), default="ACTIVE")
     avatar = Column(String(10), nullable=False)
     color = Column(String(200), nullable=True)
-    scope = Column(Text, nullable=True)
+    scope = Column(Text, nullable=True)
+    username = Column(String(100), unique=True, nullable=True)
+    password = Column(String(200), nullable=True)

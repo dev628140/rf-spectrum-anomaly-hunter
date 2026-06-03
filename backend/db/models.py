@@ -177,4 +177,15 @@ class Operator(Base):
     scope = Column(
         Text,
         nullable=True
+    )
+
+    username = Column(
+        String(100),
+        unique=True,
+        nullable=True
+    )
+
+    password = Column(
+        String(200),
+        nullable=True
     )

@@ -20,7 +20,7 @@ from backend.api.routes.history import router as history_router
 from backend.api.routes.intelligence import router as intel_router
 from backend.api.routes.model import router as model_router
 from backend.api.routes.operators import router as operators_router
-
+from backend.api.routes.auth import router as auth_router
 
 app = FastAPI(title="RF Threat Intelligence Platform API")
 
@@ -46,6 +46,7 @@ app.include_router(history_router)
 app.include_router(intel_router)
 app.include_router(model_router, prefix="/api/model")
 app.include_router(operators_router)
+app.include_router(auth_router)
 
 @app.get("/")
 async def root():

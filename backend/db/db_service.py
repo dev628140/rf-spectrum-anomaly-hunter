@@ -209,7 +209,7 @@ class DBService:
         finally:
             db.close()
 
-    def create_operator(self, name, role, level, status, avatar=None, color=None, scope=None):
+    def create_operator(self, name, role, level, status, avatar=None, color=None, scope=None, username=None, password=None):
         db = SessionLocal()
         try:
             # Auto-derive avatar and color if not provided
@@ -233,7 +233,9 @@ class DBService:
                 status=status,
                 avatar=avatar,
                 color=color,
-                scope=scope
+                scope=scope,
+                username=username,
+                password=password
             )
             db.add(op)
             db.commit()
@@ -301,7 +303,9 @@ class DBService:
                         "status": "ACTIVE",
                         "avatar": "EV",
                         "color": "border-cyan-500/30 text-cyan-300 bg-cyan-500/10",
-                        "scope": "Full system config, hardware telemetry controls, model deployment, API access governance."
+                        "scope": "Full system config, hardware telemetry controls, model deployment, API access governance.",
+                        "username": "admin",
+                        "password": "admin"
                     },
                     {
                         "name": "Marcus Miller",
@@ -310,7 +314,9 @@ class DBService:
                         "status": "ACTIVE",
                         "avatar": "MM",
                         "color": "border-purple-500/30 text-purple-300 bg-purple-500/10",
-                        "scope": "Incident classification triggers, threat model oversight, Discord webhook routing control."
+                        "scope": "Incident classification triggers, threat model oversight, Discord webhook routing control.",
+                        "username": "user",
+                        "password": "user"
                     },
                     {
                         "name": "Aisha Rahman",
@@ -319,7 +325,9 @@ class DBService:
                         "status": "STANDBY",
                         "avatar": "AR",
                         "color": "border-teal-500/30 text-teal-300 bg-teal-500/10",
-                        "scope": "Incident log replays, telemetry spectrogram observations, model metrics tracking."
+                        "scope": "Incident log replays, telemetry spectrogram observations, model metrics tracking.",
+                        "username": "operator",
+                        "password": "operator"
                     },
                     {
                         "name": "Devon Brooks",
@@ -328,7 +336,9 @@ class DBService:
                         "status": "OFFLINE",
                         "avatar": "DB",
                         "color": "border-slate-500/30 text-slate-400 bg-slate-500/5",
-                        "scope": "Read-only access to spectrogram analysis, telemetry metrics, and model classifications."
+                        "scope": "Read-only access to spectrogram analysis, telemetry metrics, and model classifications.",
+                        "username": "analyst",
+                        "password": "analyst"
                     }
                 ]
                 for data in defaults:
