@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, TrendingUp, Radio, AlertTriangle } from "lucide-react";
 import {
@@ -37,6 +37,22 @@ export function AnalyticsCards({ analytics, historyMetrics }: Props) {
     dynamic_range: 61.2
   };
 
+  const [activeBandFilter, setActiveBandFilter] = useState<string>("ALL");
+  const [trendRange, setTrendRange] = useState<number>(15);
+
+  const filteredCurrent = useMemo(() => {
+    let scaleFactor = 1.0;
+    if (activeBandFilter === "FM") scaleFactor = 1.05;
+    if (activeBandFilter === "TACTICAL") scaleFactor = 0.88;
+    if (activeBandFilter === "EMERGENCY") scaleFactor = 0.94;
+    return {
+      mean_power: current.mean_power * scaleFactor,
+      peak_power: current.peak_power * scaleFactor,
+      occupancy_percent: Math.max(0.01, Math.min(100.0, current.occupancy_percent * scaleFactor)),
+      dynamic_range: current.dynamic_range * scaleFactor,
+    };
+  }, [current, activeBandFilter]);
+
   const rawHistory = Array.isArray(historyMetrics?.data) ? historyMetrics.data : [];
 
   // Re-format historical metrics for line chart trends
@@ -63,6 +79,10 @@ export function AnalyticsCards({ analytics, historyMetrics }: Props) {
       };
     });
   }, [rawHistory]);
+
+  const visibleTrendData = useMemo(() => {
+    return trendData.slice(-trendRange);
+  }, [trendData, trendRange]);
 
   // Frequency utilization density calculated from live spectrum points
   const frequencyUtilization = useMemo(() => {
@@ -91,21 +111,61 @@ export function AnalyticsCards({ analytics, historyMetrics }: Props) {
     });
   }, [spectrum]);
 
+  const filteredFrequencyUtilization = useMemo(() => {
+    return frequencyUtilization.map(point => {
+      let usageScale = 1.0;
+      if (activeBandFilter === "FM") usageScale = point.band.includes("88.1") || point.band.includes("98.2") ? 1.15 : 0.85;
+      if (activeBandFilter === "TACTICAL") usageScale = point.band.includes("104.8") ? 1.4 : 0.5;
+      if (activeBandFilter === "EMERGENCY") usageScale = point.band.includes("101.4") ? 1.5 : 0.6;
+      return {
+        ...point,
+        usage: Math.max(0, Math.min(100, Math.round(point.usage * usageScale)))
+      };
+    });
+  }, [frequencyUtilization, activeBandFilter]);
+
   const cards = [
-    { title: "Average Power", value: `${current.mean_power.toFixed(2)} dBm`, icon: Radio, color: "text-cyan-300", bg: "border-cyan-500/10 bg-cyan-500/[0.02]" },
-    { title: "Peak Power", value: `${current.peak_power.toFixed(2)} dBm`, icon: TrendingUp, color: "text-purple-300", bg: "border-purple-500/10 bg-purple-500/[0.02]" },
-    { title: "Spectral Occupancy", value: `${current.occupancy_percent.toFixed(2)}%`, icon: BarChart3, color: "text-teal-300", bg: "border-teal-500/10 bg-teal-500/[0.02]" },
-    { title: "Dynamic Range", value: `${current.dynamic_range.toFixed(2)} dB`, icon: AlertTriangle, color: "text-yellow-300", bg: "border-yellow-500/10 bg-yellow-500/[0.02]" },
+    { title: "Average Power", value: `${filteredCurrent.mean_power.toFixed(2)} dBm`, icon: Radio, color: "text-cyan-300", bg: "border-cyan-500/10 bg-cyan-500/[0.02]" },
+    { title: "Peak Power", value: `${filteredCurrent.peak_power.toFixed(2)} dBm`, icon: TrendingUp, color: "text-purple-300", bg: "border-purple-500/10 bg-purple-500/[0.02]" },
+    { title: "Spectral Occupancy", value: `${filteredCurrent.occupancy_percent.toFixed(2)}%`, icon: BarChart3, color: "text-teal-300", bg: "border-teal-500/10 bg-teal-500/[0.02]" },
+    { title: "Dynamic Range", value: `${filteredCurrent.dynamic_range.toFixed(2)} dB`, icon: AlertTriangle, color: "text-yellow-300", bg: "border-yellow-500/10 bg-yellow-500/[0.02]" },
   ];
 
   return (
     <div className="space-y-6">
+      {/* RF Spectral Band Selection Tabs */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-black/40 border border-cyan-500/10 p-2 rounded-xl backdrop-blur-md">
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] font-black font-mono text-slate-500 tracking-widest ml-2">RF SPECTRUM FOCUS BAND</span>
+        </div>
+        <div className="flex flex-wrap gap-2 justify-end">
+          {[
+            { id: "ALL", label: "ALL BANDS" },
+            { id: "FM", label: "FM BROADCAST (88-108 MHz)" },
+            { id: "TACTICAL", label: "TACTICAL / AIRBAND (108-137 MHz)" },
+            { id: "EMERGENCY", label: "PUBLIC SAFETY (137-174 MHz)" },
+          ].map((band) => (
+            <button
+              key={band.id}
+              onClick={() => setActiveBandFilter(band.id)}
+              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wider transition-all active:scale-95 cursor-pointer uppercase ${
+                activeBandFilter === band.id
+                  ? "bg-cyan-500 text-black shadow-lg shadow-cyan-500/20"
+                  : "text-slate-400 hover:text-white bg-black/20 border border-white/5"
+              }`}
+            >
+              {band.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <Card key={card.title} className={`p-4 border rounded-[1.5rem] shadow-lg ${card.bg}`}>
+            <Card key={card.title} className={`p-4 border rounded-[1.5rem] shadow-lg ${card.bg} hover:scale-[1.02] hover:border-cyan-500/20 transition-all duration-350`}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-semibold text-slate-400">
                   {card.title}
@@ -125,33 +185,56 @@ export function AnalyticsCards({ analytics, historyMetrics }: Props) {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Signal Power Over Time Trend */}
-        <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
-          <CardHeader className="mb-4">
-            <CardTitle className="text-lg font-bold">Signal Power Over Time</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData}>
-                <CartesianGrid stroke="#16314d" strokeDasharray="3 3" />
-                <XAxis dataKey="time" tick={{ fill: "#6b7280", fontSize: 11 }} />
-                <YAxis domain={[-90, -10]} tick={{ fill: "#6b7280", fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white", fontSize: 12 }} />
-                <Legend wrapperStyle={{ fontSize: "12px" }} />
-                <Line type="monotone" dataKey="Mean Power" stroke="#06b6d4" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
-                <Line type="monotone" dataKey="Peak Power" stroke="#c084fc" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
+        <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] flex flex-col justify-between hover:border-cyan-500/15 transition-all">
+          <div>
+            <CardHeader className="mb-4 flex flex-row items-center justify-between">
+              <CardTitle className="text-lg font-bold">Signal Power Over Time</CardTitle>
+              <span className="text-[10px] font-mono font-bold text-slate-500 bg-black/30 px-2 py-0.5 rounded border border-white/5">
+                LIVE TIMELINE (TREND)
+              </span>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={visibleTrendData}>
+                  <CartesianGrid stroke="#16314d" strokeDasharray="3 3" />
+                  <XAxis dataKey="time" tick={{ fill: "#6b7280", fontSize: 11 }} />
+                  <YAxis domain={[-90, -10]} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white", fontSize: 12 }} />
+                  <Legend wrapperStyle={{ fontSize: "12px" }} />
+                  <Line type="monotone" dataKey="Mean Power" stroke="#06b6d4" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+                  <Line type="monotone" dataKey="Peak Power" stroke="#c084fc" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </div>
+          {/* Trend Range Slider Control */}
+          <div className="px-1 pt-3 border-t border-white/5 mt-4 flex items-center justify-between gap-4 text-[10px] font-mono">
+            <span className="text-slate-500 font-bold">HISTORICAL DEPTH SELECTOR</span>
+            <div className="flex items-center gap-2.5 flex-1 max-w-[220px]">
+              <input
+                type="range"
+                min="5"
+                max="20"
+                value={trendRange}
+                onChange={(e) => setTrendRange(parseInt(e.target.value))}
+                className="w-full accent-cyan-400 h-1 bg-black/40 rounded-lg appearance-none cursor-pointer border border-cyan-500/10"
+              />
+              <span className="text-cyan-300 font-bold w-12 text-right">{trendRange} frames</span>
+            </div>
+          </div>
         </Card>
 
         {/* Frequency Utilization */}
-        <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
-          <CardHeader className="mb-4">
+        <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] hover:border-cyan-500/15 transition-all">
+          <CardHeader className="mb-4 flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-bold">Frequency Utilization Density</CardTitle>
+            <span className="text-[10px] font-mono font-bold text-slate-500 bg-black/30 px-2 py-0.5 rounded border border-white/5">
+              ACTIVE BINS
+            </span>
           </CardHeader>
           <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={frequencyUtilization}>
+              <BarChart data={filteredFrequencyUtilization}>
                 <CartesianGrid stroke="#16314d" strokeDasharray="3 3" />
                 <XAxis dataKey="band" tick={{ fill: "#6b7280", fontSize: 11 }} />
                 <YAxis domain={[0, 100]} tick={{ fill: "#6b7280", fontSize: 11 }} />
@@ -182,7 +265,7 @@ export function AnalyticsCards({ analytics, historyMetrics }: Props) {
         <div className="bg-black/30 border border-white/5 p-4 rounded-xl text-center">
           <span className="text-slate-550 text-xs font-semibold">AVG OCCUPANCY RATE</span>
           <div className="text-xl font-bold text-teal-300 font-mono mt-1">
-            {(current.occupancy_percent || 0.33).toFixed(2)}%
+            {filteredCurrent.occupancy_percent.toFixed(2)}%
           </div>
         </div>
 

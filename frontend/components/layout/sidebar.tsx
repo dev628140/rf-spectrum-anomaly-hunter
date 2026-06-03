@@ -204,6 +204,9 @@ export function Sidebar() {
                       items-center
                       gap-2.5
                       cursor-pointer
+                      relative
+                      overflow-hidden
+                      hover:translate-x-1.5
 
                       ${
                         active
@@ -221,6 +224,24 @@ export function Sidebar() {
                       }
                     `}
                   >
+                    {/* Glowing Left Indicator */}
+                    <div
+                      className={`
+                        absolute
+                        left-0
+                        top-1.5
+                        bottom-1.5
+                        w-[3.5px]
+                        rounded-r-md
+                        transition-all
+                        duration-300
+                        ${
+                          active
+                            ? "bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)] scale-y-100"
+                            : "bg-cyan-500/0 scale-y-0 group-hover:scale-y-100 group-hover:bg-cyan-400/50"
+                        }
+                      `}
+                    />
                     {/* Icon */}
                     <div
                       className={`

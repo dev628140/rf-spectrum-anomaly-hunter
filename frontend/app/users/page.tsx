@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,6 +47,30 @@ const operators = [
 ];
 
 export default function UsersPage() {
+  const [selectedUserIdx, setSelectedUserIdx] = useState<number>(0);
+  const [rotatedToken, setRotatedToken] = useState<string>("");
+  const [isRotating, setIsRotating] = useState(false);
+
+  const rotateKeyToken = () => {
+    setIsRotating(true);
+    setRotatedToken("");
+    
+    let cycles = 0;
+    const chars = "abcdef0123456789";
+    const interval = setInterval(() => {
+      let hash = "";
+      for (let i = 0; i < 64; i++) {
+        hash += chars[Math.floor(Math.random() * 16)];
+      }
+      setRotatedToken(hash);
+      cycles++;
+      if (cycles > 12) {
+        clearInterval(interval);
+        setIsRotating(false);
+      }
+    }, 100);
+  };
+
   return (
     <div className="flex min-h-screen bg-[#050816] text-white">
       <Sidebar />
@@ -84,7 +109,12 @@ export default function UsersPage() {
                 {operators.map((op, idx) => (
                   <div 
                     key={op.name}
-                    className="border border-white/5 bg-black/20 rounded-xl p-4.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all duration-300 hover:border-cyan-500/20 hover:bg-white/[0.01]"
+                    onClick={() => setSelectedUserIdx(idx)}
+                    className={`border rounded-xl p-4.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all duration-300 cursor-pointer ${
+                      selectedUserIdx === idx 
+                        ? "border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.15)] bg-cyan-500/[0.02]" 
+                        : "border-white/5 bg-black/20 hover:border-cyan-500/20 hover:bg-white/[0.01]"
+                    }`}
                   >
                     {/* Left details */}
                     <div className="flex items-start gap-4">
@@ -125,32 +155,58 @@ export default function UsersPage() {
             </Card>
 
             {/* Cryptographic Key Policies */}
-            <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
-              <CardHeader className="flex flex-row items-center gap-2.5 mb-4">
-                <Key className="h-6 w-6 text-cyan-300 animate-pulse" />
-                <CardTitle className="text-lg font-bold text-white">Cryptographic Access Keys</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="border border-white/5 bg-black/25 rounded-xl p-4 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white font-bold text-sm">HiveMQ MQTTS SSL/TLS Cert</span>
-                    <span className="text-green-400 font-bold text-xs tracking-wide font-mono bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">VALID</span>
+            <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem] flex flex-col justify-between">
+              <div>
+                <CardHeader className="flex flex-row items-center gap-2.5 mb-4 p-0">
+                  <Key className="h-6 w-6 text-cyan-300 animate-pulse" />
+                  <CardTitle className="text-lg font-bold text-white">Cryptographic Access Keys</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 p-0">
+                  <div className="border border-white/5 bg-black/25 rounded-xl p-4 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white font-bold text-sm">HiveMQ MQTTS SSL/TLS Cert</span>
+                      <span className="text-green-400 font-bold text-xs tracking-wide font-mono bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">VALID</span>
+                    </div>
+                    <p className="text-slate-400 text-xs font-semibold leading-relaxed">
+                      X.509 SHA-256 TLS public key certificate deployed to edge adapter loops. Rotation scheduled in 45 days.
+                    </p>
                   </div>
-                  <p className="text-slate-400 text-xs font-semibold leading-relaxed">
-                    X.509 SHA-256 TLS public key certificate deployed to edge adapter loops. Rotation scheduled in 45 days.
-                  </p>
-                </div>
 
-                <div className="border border-white/5 bg-black/25 rounded-xl p-4 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white font-bold text-sm">Discord Webhook Token</span>
-                    <span className="text-green-400 font-bold text-xs tracking-wide font-mono bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">ACTIVE</span>
+                  <div className="border border-white/5 bg-black/25 rounded-xl p-4 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white font-bold text-sm">Discord Webhook Token</span>
+                      <span className="text-green-400 font-bold text-xs tracking-wide font-mono bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">ACTIVE</span>
+                    </div>
+                    <p className="text-slate-400 text-xs font-semibold leading-relaxed">
+                      Webhook alert token registered under active configurations. Successfully authenticated via Discord channels.
+                    </p>
                   </div>
-                  <p className="text-slate-400 text-xs font-semibold leading-relaxed">
-                    Webhook alert token registered under active configurations. Successfully authenticated via Discord channels.
-                  </p>
-                </div>
-              </CardContent>
+
+                  {rotatedToken && (
+                    <div className="border border-cyan-500/20 bg-black/50 rounded-xl p-4 space-y-2 animate-fadeIn">
+                      <div className="flex justify-between items-center">
+                        <span className="text-cyan-300 font-bold text-xs font-mono">GENERATED SHA-256 SIGNATURE</span>
+                        <span className={`text-xs font-mono font-bold ${isRotating ? "text-yellow-400 animate-pulse" : "text-green-400"}`}>
+                          {isRotating ? "COMPUTING..." : "DEPLOYED"}
+                        </span>
+                      </div>
+                      <p className="text-white text-[10px] font-mono break-all font-semibold leading-relaxed bg-black/60 p-2.5 rounded border border-white/5">
+                        {rotatedToken}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </div>
+
+              <div className="pt-4">
+                <Button
+                  onClick={rotateKeyToken}
+                  disabled={isRotating}
+                  className="w-full py-2 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-700 text-black rounded-lg transition-all"
+                >
+                  {isRotating ? "Rotating Access Keys..." : "Rotate & Verify X.509 Certificates"}
+                </Button>
+              </div>
             </Card>
 
             {/* Security Audit Log */}
@@ -161,6 +217,7 @@ export default function UsersPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
+                  { desc: `Operator ${operators[selectedUserIdx]?.name || "Elena Vance"} selected to audit configurations.`, time: "Just now", status: "SUCCESS" },
                   { desc: "Operator Elena Vance switched system runtime to Random Forest model.", time: "05:12:05", status: "SUCCESS" },
                   { desc: "Root login established from verified operator subnet: 192.168.1.42.", time: "04:58:30", status: "SUCCESS" },
                   { desc: "TLS access handshake established with edge node #001.", time: "04:22:15", status: "SUCCESS" },
@@ -175,6 +232,72 @@ export default function UsersPage() {
                     </span>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+
+            {/* Permissions Matrix */}
+            <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem] xl:col-span-2">
+              <CardHeader className="mb-4">
+                <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-cyan-300" />
+                  Access Control Permissions Matrix
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead>
+                    <tr className="border-b border-cyan-500/20 text-slate-400">
+                      <th className="py-3 px-4">OPERATOR</th>
+                      <th className="py-3 px-4 text-center">READ TELEMETRY</th>
+                      <th className="py-3 px-4 text-center">REPLAY LOGS</th>
+                      <th className="py-3 px-4 text-center">SWAP MODELS</th>
+                      <th className="py-3 px-4 text-center">WRITE CONFIGS</th>
+                      <th className="py-3 px-4 text-center">MANAGE SCOPES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {operators.map((op, idx) => {
+                      const levelNum = parseInt(op.level.match(/\d+/)?.[0] || "0");
+                      const hasRead = levelNum >= 2;
+                      const hasReplay = levelNum >= 3;
+                      const hasSwap = levelNum >= 4;
+                      const hasWrite = levelNum >= 5;
+                      const hasManage = levelNum >= 5;
+
+                      return (
+                        <tr
+                          key={op.name}
+                          onClick={() => setSelectedUserIdx(idx)}
+                          className={`cursor-pointer border-b border-white/5 transition-all duration-150 ${
+                            selectedUserIdx === idx
+                              ? "bg-cyan-500/5 text-cyan-300 font-bold border-l-2 border-l-cyan-500"
+                              : "hover:bg-white/[0.01] text-slate-300"
+                          }`}
+                        >
+                          <td className="py-3 px-4 flex items-center gap-2">
+                            <span className="text-[10px] text-slate-500">[{op.level}]</span>
+                            <span>{op.name}</span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {hasRead ? <span className="text-green-400">✓</span> : <span className="text-slate-600">✗</span>}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {hasReplay ? <span className="text-green-400">✓</span> : <span className="text-slate-600">✗</span>}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {hasSwap ? <span className="text-green-400">✓</span> : <span className="text-slate-600">✗</span>}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {hasWrite ? <span className="text-green-400">✓</span> : <span className="text-slate-600">✗</span>}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {hasManage ? <span className="text-green-400">✓</span> : <span className="text-slate-600">✗</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </CardContent>
             </Card>
 

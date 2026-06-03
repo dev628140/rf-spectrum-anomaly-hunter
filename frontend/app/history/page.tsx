@@ -145,10 +145,45 @@ export default function HistoryPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState(1); // 1x, 2x, 5x
   const [activeTab, setActiveTab] = useState<"npz" | "csv">("npz");
+  const [noiseFilterDb, setNoiseFilterDb] = useState<number>(-80);
+  const [signalGainDb, setSignalGainDb] = useState<number>(0);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentFrame = timeline[currentIndex] || timeline[0] || generateHistoricalFrame(0);
+
+  const activeFrame = useMemo(() => {
+    const scaledSpectrum = currentFrame.spectrum.map((point) => {
+      let power = point.power + signalGainDb;
+      if (power < noiseFilterDb) {
+        power = noiseFilterDb;
+      }
+      return {
+        ...point,
+        power: parseFloat(power.toFixed(2)),
+      };
+    });
+
+    const powers = scaledSpectrum.map((p) => p.power);
+    const peak_power = Math.max(...powers);
+    const mean_power = powers.reduce((a, b) => a + b, 0) / powers.length;
+    const min_power = Math.min(...powers);
+    const dynamic_range = peak_power - min_power;
+
+    const activeCount = scaledSpectrum.filter((p) => p.power > noiseFilterDb + 15).length;
+    const occupancy = activeCount / scaledSpectrum.length;
+
+    return {
+      ...currentFrame,
+      spectrum: scaledSpectrum,
+      metrics: {
+        mean_power,
+        peak_power,
+        occupancy: occupancy > 0 ? occupancy : 0.02,
+        dynamic_range: dynamic_range > 0 ? dynamic_range : 10,
+      },
+    };
+  }, [currentFrame, signalGainDb, noiseFilterDb]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -269,7 +304,7 @@ export default function HistoryPage() {
             <div className="mt-4 space-y-1">
               <div className="flex justify-between text-xs text-slate-500 font-bold font-mono">
                 <span>TIME: {timeline[0]?.timestamp || "00:00:00"}</span>
-                <span className="text-cyan-300">CURRENT FRAME TIMESTAMP: {currentFrame.timestamp}</span>
+                <span className="text-cyan-300">CURRENT FRAME TIMESTAMP: {activeFrame.timestamp}</span>
                 <span>TIME: {timeline[timeline.length - 1]?.timestamp || "00:00:00"}</span>
               </div>
               <input
@@ -284,6 +319,42 @@ export default function HistoryPage() {
                 className="w-full accent-cyan-400 h-1.5 bg-black/40 rounded-lg appearance-none cursor-pointer border border-cyan-500/10"
               />
             </div>
+
+            {/* DSP Tuning Controls */}
+            <div className="mt-4 pt-4 border-t border-cyan-500/10 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs font-bold font-mono">
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <Sliders className="h-3.5 w-3.5 text-cyan-300" />
+                    LNA RECEIVE GAIN: <span className="text-cyan-300">{signalGainDb > 0 ? `+${signalGainDb}` : signalGainDb} dB</span>
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="-10"
+                  max="30"
+                  value={signalGainDb}
+                  onChange={(e) => setSignalGainDb(parseInt(e.target.value))}
+                  className="w-full accent-cyan-400 h-1 bg-black/40 rounded-lg appearance-none cursor-pointer border border-cyan-500/10"
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs font-bold font-mono">
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <Activity className="h-3.5 w-3.5 text-cyan-300" />
+                    NOISE DE-NOISE THRESHOLD: <span className="text-cyan-300">{noiseFilterDb} dBm</span>
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="-100"
+                  max="-40"
+                  value={noiseFilterDb}
+                  onChange={(e) => setNoiseFilterDb(parseInt(e.target.value))}
+                  className="w-full accent-cyan-400 h-1 bg-black/40 rounded-lg appearance-none cursor-pointer border border-cyan-500/10"
+                />
+              </div>
+            </div>
           </Card>
 
           {/* Synchronized Replay Charts Section */}
@@ -297,12 +368,12 @@ export default function HistoryPage() {
                   <CardTitle className="text-lg font-bold">Forensic FFT Spectrum</CardTitle>
                 </div>
                 <div className="px-2.5 py-1 rounded-lg border border-cyan-500/20 bg-cyan-500/5 text-xs font-bold text-cyan-300 font-mono">
-                  {currentFrame.metrics.peak_power.toFixed(1)} dBm PEAK
+                  {activeFrame.metrics.peak_power.toFixed(1)} dBm PEAK
                 </div>
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={currentFrame.spectrum}>
+                  <AreaChart data={activeFrame.spectrum}>
                     <defs>
                       <linearGradient id="replayFill" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#00e5ff" stopOpacity={0.5} />
@@ -311,7 +382,7 @@ export default function HistoryPage() {
                     </defs>
                     <CartesianGrid stroke="#16314d" strokeDasharray="3 3" />
                     <XAxis dataKey="frequency" tick={{ fill: "#6b7280", fontSize: 11 }} />
-                    <YAxis domain={[-90, -10]} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                    <YAxis domain={[-110, 0]} tick={{ fill: "#6b7280", fontSize: 11 }} />
                     <Tooltip contentStyle={{ background: "#07111f", border: "1px solid rgba(0,255,255,0.2)", color: "white", fontSize: 12 }} />
                     <Area type="monotone" dataKey="power" stroke="#22d3ee" strokeWidth={2} fill="url(#replayFill)" isAnimationActive={false} />
                   </AreaChart>
@@ -329,16 +400,22 @@ export default function HistoryPage() {
                 <CardContent className="space-y-[2px] bg-black p-2 rounded-xl border border-cyan-500/10">
                   {timeline.slice(Math.max(0, currentIndex - 15), currentIndex + 1).map((frame, rowIndex) => (
                     <div key={rowIndex} className="flex gap-[1px] h-[12px]">
-                      {frame.spectrum.slice(0, 32).map((point, colIndex) => (
-                        <div
-                          key={colIndex}
-                          className="flex-1 rounded-sm"
-                          style={{
-                            backgroundColor: getColor(point.power),
-                            boxShadow: point.power > -35 ? "0 0 4px rgba(0,255,255,0.8)" : "none"
-                          }}
-                        />
-                      ))}
+                      {frame.spectrum.slice(0, 32).map((point, colIndex) => {
+                        let power = point.power + signalGainDb;
+                        if (power < noiseFilterDb) {
+                          power = noiseFilterDb;
+                        }
+                        return (
+                          <div
+                            key={colIndex}
+                            className="flex-1 rounded-sm transition-colors duration-150"
+                            style={{
+                              backgroundColor: getColor(power),
+                              boxShadow: power > -35 ? "0 0 4px rgba(0,255,255,0.8)" : "none"
+                            }}
+                          />
+                        );
+                      })}
                     </div>
                   ))}
                 </CardContent>
@@ -357,51 +434,51 @@ export default function HistoryPage() {
             
             {/* Threat Event Details */}
             <Card className={`p-5 border rounded-[1.5rem] transition-all duration-500 ${
-              currentFrame.threat.state !== "NORMAL"
+              activeFrame.threat.state !== "NORMAL"
                 ? "bg-red-500/[0.03] border-red-500/20 shadow-[0_0_50px_rgba(239,68,68,0.03)]"
                 : "bg-green-500/[0.02] border-green-500/10"
             }`}>
               <CardHeader className="flex flex-row items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
-                  <AlertTriangle className={`h-6 w-6 ${currentFrame.threat.state !== "NORMAL" ? "text-red-400" : "text-green-400"}`} />
+                  <AlertTriangle className={`h-6 w-6 ${activeFrame.threat.state !== "NORMAL" ? "text-red-400" : "text-green-400"}`} />
                   <CardTitle className="text-lg font-bold">Forensic Incident Context</CardTitle>
                 </div>
                 <div className={`px-3.5 py-1.5 rounded-full font-bold text-sm border ${
-                  currentFrame.threat.state !== "NORMAL"
+                  activeFrame.threat.state !== "NORMAL"
                     ? "bg-red-500/10 border-red-500/30 text-red-400"
                     : "bg-green-500/10 border-green-500/20 text-green-400"
                 }`}>
-                  {currentFrame.threat.state}
+                  {activeFrame.threat.state}
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
                   <span className="text-slate-400 font-medium">Detection Confidence</span>
-                  <span className="text-white font-bold font-mono">{currentFrame.threat.confidence}%</span>
+                  <span className="text-white font-bold font-mono">{activeFrame.threat.confidence}%</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
                   <span className="text-slate-400 font-medium">Incident Severity</span>
-                  <span className={`font-bold ${currentFrame.threat.severity === "HIGH" ? "text-red-400 animate-pulse" : "text-slate-300"}`}>
-                    {currentFrame.threat.severity}
+                  <span className={`font-bold ${activeFrame.threat.severity === "HIGH" ? "text-red-400 animate-pulse" : "text-slate-300"}`}>
+                    {activeFrame.threat.severity}
                   </span>
                 </div>
-                {currentFrame.threat.latency !== undefined && currentFrame.threat.latency !== null && (
+                {activeFrame.threat.latency !== undefined && activeFrame.threat.latency !== null && (
                   <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
                     <span className="text-slate-400 font-medium">Processing Latency</span>
-                    <span className="text-white font-bold font-mono">{currentFrame.threat.latency.toFixed(2)} ms</span>
+                    <span className="text-white font-bold font-mono">{activeFrame.threat.latency.toFixed(2)} ms</span>
                   </div>
                 )}
-                {currentFrame.threat.min_value !== undefined && currentFrame.threat.min_value !== null && (
+                {activeFrame.threat.min_value !== undefined && activeFrame.threat.min_value !== null && (
                   <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
                     <span className="text-slate-400 font-medium">SDR Power Bounds (Min/Max)</span>
                     <span className="text-white font-bold font-mono">
-                      {currentFrame.threat.min_value.toFixed(1)} / {currentFrame.threat.max_value?.toFixed(1) ?? "N/A"} dBm
+                      {activeFrame.threat.min_value.toFixed(1)} / {activeFrame.threat.max_value?.toFixed(1) ?? "N/A"} dBm
                     </span>
                   </div>
                 )}
                 <div className="space-y-1">
                   <span className="text-slate-400 font-medium block">Incident Summary Description</span>
-                  <p className="text-white font-semibold leading-relaxed">{currentFrame.threat.summary}</p>
+                  <p className="text-white font-semibold leading-relaxed">{activeFrame.threat.summary}</p>
                 </div>
               </CardContent>
             </Card>
@@ -416,22 +493,22 @@ export default function HistoryPage() {
                 
                 <div className="bg-black/40 border border-white/5 rounded-xl p-3.5">
                   <span className="text-slate-555 text-xs font-bold">MEAN POWER</span>
-                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{currentFrame.metrics.mean_power.toFixed(2)} dBm</div>
+                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{activeFrame.metrics.mean_power.toFixed(2)} dBm</div>
                 </div>
 
                 <div className="bg-black/40 border border-white/5 rounded-xl p-3.5">
                   <span className="text-slate-555 text-xs font-bold">PEAK POWER</span>
-                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{currentFrame.metrics.peak_power.toFixed(2)} dBm</div>
+                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{activeFrame.metrics.peak_power.toFixed(2)} dBm</div>
                 </div>
 
                 <div className="bg-black/40 border border-white/5 rounded-xl p-3.5">
                   <span className="text-slate-555 text-xs font-bold">SPECTRAL OCCUPANCY</span>
-                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{(currentFrame.metrics.occupancy * 100).toFixed(1)}%</div>
+                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{(activeFrame.metrics.occupancy * 100).toFixed(1)}%</div>
                 </div>
 
                 <div className="bg-black/40 border border-white/5 rounded-xl p-3.5">
                   <span className="text-slate-555 text-xs font-bold">DYNAMIC RANGE</span>
-                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{currentFrame.metrics.dynamic_range.toFixed(2)} dB</div>
+                  <div className="text-lg font-bold text-cyan-300 font-mono mt-1">{activeFrame.metrics.dynamic_range.toFixed(2)} dB</div>
                 </div>
 
               </CardContent>

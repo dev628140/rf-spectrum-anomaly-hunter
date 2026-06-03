@@ -37,6 +37,7 @@ export default function ExplainPage() {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [hoverInfo, setHoverInfo] = useState<{ freq: number; val: number; x: number; y: number } | null>(null);
+  const [activePipelineStep, setActivePipelineStep] = useState<number>(0);
 
   // Compute live statistics from the error map array on the fly
   const { meanError, maxError, hotspotsCount } = useMemo(() => {
@@ -647,12 +648,17 @@ export default function ExplainPage() {
 
           {/* AI Decision Pipeline Timeline */}
           <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
-            <CardHeader className="flex flex-row items-center gap-3 mb-4">
-              <Cpu className="h-7 w-7 text-cyan-300" />
-              <CardTitle className="text-xl font-bold">Explainable AI Decision Pipeline</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Cpu className="h-7 w-7 text-cyan-300" />
+                <CardTitle className="text-xl font-bold">Explainable AI Decision Pipeline</CardTitle>
+              </div>
+              <div className="text-xs text-slate-500 font-bold tracking-widest font-mono uppercase bg-black/40 px-3 py-1 rounded-full border border-white/5 animate-pulse">
+                Click any step to inspect telemetry
+              </div>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
                 {/* Horizontal line connector */}
                 <div className="absolute top-[20px] left-[10%] right-[10%] h-[2px] bg-cyan-500/10 hidden md:block" />
@@ -663,16 +669,110 @@ export default function ExplainPage() {
                   { step: "03", title: "ML Reconstruction", desc: "Convolutional Autoencoder reconstructs the spectral signature." },
                   { step: "04", title: "Residual analysis", desc: "Reconstruction error residuals computed, hot spots localized." },
                   { step: "05", title: "Risk Decision", desc: "Random Forest tags threat classification and fires notifications." },
-                ].map((item, idx) => (
-                  <div key={idx} className="relative z-10 flex flex-col items-center text-center space-y-2 bg-black/20 p-4 rounded-xl border border-cyan-500/5">
-                    <div className="h-10 w-10 rounded-full border-2 border-cyan-500/30 bg-[#07111f] flex items-center justify-center text-cyan-300 text-sm font-bold shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-                      {item.step}
-                    </div>
-                    <div className="text-sm font-bold text-white">{item.title}</div>
-                    <p className="text-xs text-slate-400 font-medium leading-relaxed">{item.desc}</p>
-                  </div>
-                ))}
+                ].map((item, idx) => {
+                  const isActive = activePipelineStep === idx;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setActivePipelineStep(idx)}
+                      className={`relative z-10 flex flex-col items-center text-center space-y-2 p-4 rounded-xl border transition-all duration-300 cursor-pointer active:scale-95 text-left w-full ${
+                        isActive
+                          ? "border-cyan-500 bg-cyan-500/[0.04] shadow-[0_0_20px_rgba(6,182,212,0.1)]"
+                          : "border-cyan-500/5 bg-black/20 hover:border-cyan-500/20 hover:bg-white/[0.01]"
+                      }`}
+                    >
+                      <div className={`h-10 w-10 rounded-full border-2 flex items-center justify-center text-sm font-bold shadow-[0_0_15px_rgba(6,182,212,0.15)] transition-all ${
+                        isActive ? "border-cyan-400 bg-cyan-400 text-black" : "border-cyan-500/30 bg-[#07111f] text-cyan-300"
+                      }`}>
+                        {item.step}
+                      </div>
+                      <div className="text-sm font-bold text-white">{item.title}</div>
+                      <p className="text-xs text-slate-400 font-medium leading-relaxed">{item.desc}</p>
+                    </button>
+                  );
+                })}
               </div>
+
+              {/* Dynamic Sub-inspector Panel */}
+              {(() => {
+                const pipelineDetails = [
+                  {
+                    title: "SDR Ingestion In-Depth Telemetry",
+                    details: [
+                      { name: "Sample Rate", val: "2.4 MSPS (Mega Samples/sec)" },
+                      { name: "Ingestion Stream", val: "I/Q Complex Float32 Matrix" },
+                      { name: "Direct DMA Buffer", val: "512KB Ring Queue [Active]" },
+                      { name: "SDR Connection Path", val: "USB 3.0 High-Speed Ingestion" },
+                    ],
+                    log: `[01/INGEST] Connected to RTL-SDR hardware successfully.\n[01/INGEST] DMA transfer buffer initiated. Ring-buffer size: 8192 blocks.\n[01/INGEST] Capturing raw complex I/Q values: 2,400,000 samples/sec.`
+                  },
+                  {
+                    title: "DSP Log-Spectrogram Engine",
+                    details: [
+                      { name: "FFT Window Size", val: "1024 bins / Hann window" },
+                      { name: "FFT Overlap Ratio", val: "50% (512 samples step size)" },
+                      { name: "Bandwidth Spans", val: "20.0 MHz (88.0 - 108.0 MHz)" },
+                      { name: "DSP Latency", val: "1.42 milliseconds per FFT" },
+                    ],
+                    log: `[02/DSP] Ingested I/Q buffer length: 2048 complex samples.\n[02/DSP] Applied Hann windowing function to reduce spectral leakage.\n[02/DSP] Computed 1024-point FFT. Magnitude conversion done: 20*log10(|X|).`
+                  },
+                  {
+                    title: "ML Conv2D Reconstruction Loss",
+                    details: [
+                      { name: "Autoencoder Layers", val: "Conv2D (1->16->8) -> Latent (32) -> Deconv (8->16->1)" },
+                      { name: "Neural Weights", val: "42,816 PyTorch Parameters [Fitted]" },
+                      { name: "Hardware Engine", val: "ONNX Runtime CPU / TorchScript Engine" },
+                      { name: "Average Inference", val: "6.20 milliseconds" },
+                    ],
+                    log: `[03/MODEL] Feeding 15x32 normalized power spectrum spectrogram slice.\n[03/MODEL] Encoder activation: Relu / Bottleneck Latent dimension: 32.\n[03/MODEL] Decoder reconstruction complete. Mean Squared Error computed.`
+                  },
+                  {
+                    title: "Residual Error Attribution Analysis",
+                    details: [
+                      { name: "Loss Metric", val: "MSE (Mean Squared Error)" },
+                      { name: "Threshold Level", val: "7.26e-06 MSE (calibrated baseline)" },
+                      { name: "Hotspot Condition", val: "Reconstruction Error > 6.0 MSE" },
+                      { name: "Telemetry Output", val: "Differential residual heat matrix" },
+                    ],
+                    log: `[04/ANALYSIS] Comparing reconstructed tensor to original inputs.\n[04/ANALYSIS] Localizing bins with anomaly residuals. Outliers found at 97.4 MHz.\n[04/ANALYSIS] Dispatching 32-bin attribution scores to decision logic.`
+                  },
+                  {
+                    title: "Random Forest Classifier & Notification Dispatch",
+                    details: [
+                      { name: "Model Type", val: "Supervised Random Forest Ensemble" },
+                      { name: "Ensemble Size", val: "128 Decision Trees [Fitted]" },
+                      { name: "Consensus Rule", val: "Soft Voting Probability > 85.0%" },
+                      { name: "External Alert Path", val: "Discord JSON Webhook / HiveMQ MQTT" },
+                    ],
+                    log: `[05/DECISION] Voting started. 114 of 128 trees voted JAMMING.\n[05/DECISION] Severity score: HIGH (Confidence: 95.4%).\n[05/DECISION] Triggered Discord notification dispatch. Payload received: Status 204.`
+                  }
+                ];
+                const activeDetail = pipelineDetails[activePipelineStep];
+                return (
+                  <div className="border border-cyan-500/15 bg-black/40 rounded-xl p-4.5 grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fadeIn">
+                    <div>
+                      <h4 className="text-sm font-black text-cyan-300 tracking-wide mb-3 uppercase flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                        {activeDetail.title}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        {activeDetail.details.map((d, i) => (
+                          <div key={i} className="bg-black/30 border border-white/5 rounded-lg p-2.5">
+                            <span className="text-slate-500 block font-semibold mb-0.5">{d.name}</span>
+                            <span className="text-white font-bold font-mono">{d.val}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-slate-500 text-xs font-semibold mb-2 block">PIPELINE NODE STREAM LOG</span>
+                      <pre className="flex-1 bg-black p-3.5 rounded-lg border border-white/5 text-[10.5px] font-mono text-cyan-400 leading-normal overflow-x-auto whitespace-pre-wrap">
+                        {activeDetail.log}
+                      </pre>
+                    </div>
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
 

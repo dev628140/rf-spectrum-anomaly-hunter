@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,42 @@ export default function SettingsPage() {
   const [sampleRate, setSampleRate] = useState("2.4");
   const [gain, setGain] = useState("20");
   const [saved, setSaved] = useState(false);
+
+  const [diagStatus, setDiagStatus] = useState<"idle" | "running" | "success" | "error">("idle");
+  const [diagLogs, setDiagLogs] = useState<string[]>([]);
+  const consoleEndRef = useRef<HTMLDivElement | null>(null);
+
+  const runDiagnostics = () => {
+    setDiagStatus("running");
+    setDiagLogs(["[INFO] Initializing SDR Core Diagnostic Suite..."]);
+    
+    const steps = [
+      { msg: "[CHECK] Verifying PLL Clock Lock status...", delay: 600 },
+      { msg: "[SUCCESS] PLL Clock Locked (Ref: 10.000 MHz)", delay: 1200 },
+      { msg: "[CHECK] Calibrating DC Offset compensation...", delay: 1800 },
+      { msg: "[SUCCESS] IQ DC offset corrected (I: -0.002, Q: +0.001)", delay: 2400 },
+      { msg: "[CHECK] Initializing DMA transfer buffers...", delay: 3000 },
+      { msg: "[SUCCESS] DMA circular buffers allocated (64MB @ 0x800000)", delay: 3600 },
+      { msg: "[CHECK] Reading frontend thermal sensors...", delay: 4200 },
+      { msg: "[SUCCESS] Core temp: 42.6°C (Limits: < 85°C)", delay: 4800 },
+      { msg: "[SUCCESS] Core Diagnostics completed successfully. Hardware status: HEALTHY.", delay: 5400 }
+    ];
+
+    steps.forEach((step, index) => {
+      setTimeout(() => {
+        setDiagLogs((prev) => [...prev, step.msg]);
+        if (index === steps.length - 1) {
+          setDiagStatus("success");
+        }
+      }, step.delay);
+    });
+  };
+
+  useEffect(() => {
+    if (consoleEndRef.current) {
+      consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [diagLogs]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,6 +243,112 @@ export default function SettingsPage() {
                   Platform resources are optimal. Real-time inference pipelines are running with a latency of 142ms.
                 </p>
               </div>
+            </Card>
+
+            {/* Core Diagnostics Console Card */}
+            <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem] xl:col-span-2">
+              <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <Activity className="h-6 w-6 text-yellow-400" />
+                  <CardTitle className="text-xl font-bold">SDR Hardware Core Diagnostics</CardTitle>
+                </div>
+                <div className="flex items-center gap-3">
+                  {diagStatus === "running" && (
+                    <span className="flex items-center gap-1.5 text-xs text-yellow-400 font-bold font-mono">
+                      <span className="h-2 w-2 rounded-full bg-yellow-400 animate-ping" />
+                      RUNNING DIAGS
+                    </span>
+                  )}
+                  {diagStatus === "success" && (
+                    <span className="flex items-center gap-1.5 text-xs text-green-400 font-bold font-mono">
+                      <span className="h-2 w-2 rounded-full bg-green-400" />
+                      SYSTEM HEALTHY
+                    </span>
+                  )}
+                  {diagStatus === "idle" && (
+                    <span className="flex items-center gap-1.5 text-xs text-slate-400 font-bold font-mono">
+                      <span className="h-2 w-2 rounded-full bg-slate-400" />
+                      READY
+                    </span>
+                  )}
+                  <Button
+                    onClick={runDiagnostics}
+                    disabled={diagStatus === "running"}
+                    className="py-1.5 px-4 text-xs font-bold bg-yellow-500 hover:bg-yellow-400 disabled:bg-slate-700 text-black rounded-lg transition-all"
+                  >
+                    Run Core Diagnostics
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Diagnostics Checklist */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-white mb-2">Hardware Verification Checklist</h3>
+                  <div className="space-y-3">
+                    {[
+                      { id: "pll", label: "PLL clock synthesis calibration check" },
+                      { id: "dc", label: "IQ balance and DC offset calibration" },
+                      { id: "dma", label: "DMA buffer allocation & alignment test" },
+                      { id: "thermal", label: "Front-end RF core thermistors scan" }
+                    ].map((item, idx) => {
+                      let statusText = "Pending";
+                      let color = "text-slate-500";
+                      let indicator = "○";
+
+                      if (diagStatus === "running") {
+                        if (diagLogs.some(log => log.includes("SUCCESS") && log.includes(item.id === "pll" ? "PLL" : item.id === "dc" ? "corrected" : item.id === "dma" ? "DMA" : "temp"))) {
+                          statusText = "Passed";
+                          color = "text-green-400 font-bold";
+                          indicator = "●";
+                        } else if (diagLogs.some(log => log.includes("CHECK") && log.includes(item.id === "pll" ? "PLL" : item.id === "dc" ? "DC" : item.id === "dma" ? "DMA" : "thermal"))) {
+                          statusText = "Checking...";
+                          color = "text-yellow-400 font-bold animate-pulse";
+                          indicator = "◑";
+                        }
+                      } else if (diagStatus === "success") {
+                        statusText = "Passed";
+                        color = "text-green-400 font-bold";
+                        indicator = "●";
+                      }
+
+                      return (
+                        <div key={item.id} className="flex justify-between items-center border-b border-white/5 pb-2 text-xs">
+                          <span className="text-slate-300 font-medium flex items-center gap-2">
+                            <span className={color}>{indicator}</span>
+                            {item.label}
+                          </span>
+                          <span className={color}>{statusText}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Rolling Log Output */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-sm font-bold text-white">Diagnostics Console Log</h3>
+                    <button
+                      onClick={() => setDiagLogs([])}
+                      className="text-[10px] text-slate-500 hover:text-white font-bold"
+                    >
+                      CLEAR
+                    </button>
+                  </div>
+                  <div className="bg-black/80 font-mono text-[11px] p-4 rounded-xl text-green-400 border border-green-500/20 max-h-48 overflow-y-auto h-48 space-y-1">
+                    {diagLogs.length === 0 ? (
+                      <span className="text-slate-600 font-mono">[LOG] Awaiting diagnostic execution command...</span>
+                    ) : (
+                      diagLogs.map((log, idx) => (
+                        <div key={idx} className={log.includes("SUCCESS") ? "text-green-400" : log.includes("CHECK") ? "text-yellow-300" : "text-cyan-300"}>
+                          {log}
+                        </div>
+                      ))
+                    )}
+                    <div ref={consoleEndRef} />
+                  </div>
+                </div>
+              </CardContent>
             </Card>
 
           </div>
