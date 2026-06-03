@@ -165,7 +165,7 @@ export function Topbar() {
           {/* User profile & Log out button */}
           <div className="flex items-center gap-3 border-l border-white/10 pl-3">
             <div className="text-right shrink-0">
-              <p className="text-[10px] text-slate-300 font-black leading-none">{user?.username || "Guest Operator"}</p>
+              <p className="text-[10px] text-slate-300 font-black leading-none">{user?.name || "Guest Operator"}</p>
               <span className={`inline-block text-[8px] font-black tracking-widest font-mono uppercase px-1.5 py-0.5 rounded-full mt-1 border ${
                 user?.role === "admin" 
                   ? "border-red-500/30 bg-red-500/10 text-red-400"
