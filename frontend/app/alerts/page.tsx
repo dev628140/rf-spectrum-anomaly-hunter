@@ -10,7 +10,6 @@ import {
   AlertTriangle, 
   Clock, 
   Filter, 
-  Radar, 
   ShieldAlert, 
   CheckCircle, 
   Sparkles,
@@ -27,7 +26,6 @@ export default function AlertsPage() {
   const [filterSeverity, setFilterSeverity] = useState<"ALL" | "CRITICAL" | "HIGH" | "MEDIUM">("ALL");
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const [resolvedMap, setResolvedMap] = useState<Record<string, boolean>>({});
-  const [dispatchedIds, setDispatchedIds] = useState<Record<string, boolean>>({});
 
   const filteredIncidents = useMemo(() => {
     let list = rawIncidents;
@@ -49,19 +47,6 @@ export default function AlertsPage() {
     }
   };
 
-  const handleDispatch = async (id: string) => {
-    setDispatchedIds((prev) => ({ ...prev, [id]: true }));
-    try {
-      await api.post(`/api/history/incidents/${id}/resolve`);
-      setTimeout(() => {
-        setResolvedMap((prev) => ({ ...prev, [id]: true }));
-        incidentsQuery.refetch();
-      }, 1500);
-    } catch (err) {
-      console.error("Failed to dispatch jamming resolution protocol:", err);
-    }
-  };
-
   // Helper for severity levels
   const getSeverityStyle = (severity: string) => {
     const s = severity?.toUpperCase();
@@ -76,33 +61,8 @@ export default function AlertsPage() {
   const highCount = rawIncidents.filter((i: any) => i.severity?.toUpperCase() === "HIGH").length;
   const activeCount = rawIncidents.length - Object.keys(resolvedMap).length;
 
-  // Mock radar node coordinate matching
-  const sensorNodes = [
-    { name: "Ingress Node Alpha (FM)", x: "30%", top: "25%", status: "ONLINE", power: -72 },
-    { name: "Tactical Node Beta (UHF)", x: "75%", top: "60%", status: "ONLINE", power: -68 },
-    { name: "Public Range Gamma (ISM)", x: "20%", top: "70%", status: "ONLINE", power: -85 },
-    { name: "Secure Node Delta (SHF)", x: "80%", top: "20%", status: "ONLINE", power: -90 },
-  ];
-
   return (
     <div className="flex min-h-screen bg-[#050816] text-white">
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes radar-spin {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        .radar-sweep-line {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          width: 50%;
-          height: 1.5px;
-          background: linear-gradient(to right, transparent, rgba(6, 182, 212, 0.7));
-          transform-origin: left center;
-          animation: radar-spin 6s linear infinite;
-        }
-      `}} />
-
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0">
@@ -150,11 +110,11 @@ export default function AlertsPage() {
           {/* Incident Command Layout */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             
-            {/* Left: Filters and Space Coordination Radar */}
-            <div className="space-y-6">
+            {/* Left Column: Filters and Feed Queue (Spans 2 Columns on desktop) */}
+            <div className="xl:col-span-2 space-y-6 flex flex-col justify-between h-[580px]">
               
               {/* Filter Panel */}
-              <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
+              <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] shrink-0">
                 <CardHeader className="p-0 mb-4 flex flex-row items-center gap-2">
                   <Filter className="h-5 w-5 text-cyan-300" />
                   <CardTitle className="text-base font-bold">Inference Filters</CardTitle>
@@ -179,64 +139,8 @@ export default function AlertsPage() {
                 </CardContent>
               </Card>
 
-              {/* Space Coordination Radar */}
-              <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem]">
-                <CardHeader className="p-0 mb-4 flex flex-row items-center gap-2">
-                  <Radar className="h-5 w-5 text-cyan-300" />
-                  <CardTitle className="text-base font-bold">AoA Coordinate Map</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0 relative w-full h-[220px] bg-black/60 border border-cyan-500/20 rounded-xl overflow-hidden">
-                  {/* Radar grids */}
-                  <div className="absolute inset-8 border border-cyan-500/5 rounded-full" />
-                  <div className="absolute inset-16 border border-cyan-500/5 rounded-full" />
-                  <div className="absolute inset-24 border border-cyan-500/5 rounded-full" />
-                  <div className="absolute left-1/2 top-0 bottom-0 w-[0.5px] bg-cyan-500/10" />
-                  <div className="absolute top-1/2 left-0 right-0 h-[0.5px] bg-cyan-500/10" />
-
-                  {/* Sweep Line */}
-                  <div className="radar-sweep-line" />
-
-                  {/* Sensor Nodes */}
-                  {sensorNodes.map((node) => {
-                    const isMatched = activeIncident && (
-                      (activeIncident.threat_type?.toLowerCase().includes("jamming") && node.name.includes("Alpha")) ||
-                      (activeIncident.threat_type?.toLowerCase().includes("spoofing") && node.name.includes("Beta")) ||
-                      (activeIncident.threat_type?.toLowerCase().includes("anomaly") && node.name.includes("Gamma")) ||
-                      (activeIncident.threat_type?.toLowerCase().includes("normal") && node.name.includes("Delta"))
-                    );
-
-                    return (
-                      <div
-                        key={node.name}
-                        className="absolute group cursor-pointer"
-                        style={{ left: node.x, top: node.top }}
-                      >
-                        <div className={`h-3 w-3 rounded-full flex items-center justify-center relative ${
-                          isMatched ? "bg-red-500" : "bg-cyan-400"
-                        }`}>
-                          <div className={`absolute -inset-2 rounded-full border animate-ping ${
-                            isMatched ? "border-red-500/60" : "border-cyan-400/40"
-                          }`} />
-                        </div>
-                        {/* Hover Tooltip */}
-                        <div className="hidden group-hover:block absolute bottom-5 left-5 bg-slate-950/90 text-[10px] p-2 border border-cyan-500/20 rounded font-mono text-white whitespace-nowrap z-20">
-                          <div className="font-bold text-cyan-300">{node.name}</div>
-                          <div>STATUS: {node.status}</div>
-                          <div>LNA POWER: {node.power} dBm</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </CardContent>
-              </Card>
-
-            </div>
-
-            {/* Middle: Threat Incident Feed List */}
-            <div className="xl:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* Incident Feed List */}
-              <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] flex flex-col h-[530px]">
+              {/* Incident Feed List Card */}
+              <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] flex-1 flex flex-col min-h-0">
                 <CardHeader className="p-0 mb-4 flex flex-row items-center gap-2 shrink-0">
                   <AlertTriangle className="h-5 w-5 text-cyan-300 animate-pulse" />
                   <CardTitle className="text-base font-bold">Threat Feed Queue</CardTitle>
@@ -303,101 +207,91 @@ export default function AlertsPage() {
                 </CardContent>
               </Card>
 
-              {/* Right: Selected Threat Detail Explorer */}
-              <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] flex flex-col h-[530px] justify-between">
-                <div>
-                  <CardHeader className="p-0 mb-4 shrink-0">
-                    <CardTitle className="text-base font-bold flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-cyan-300" />
-                      Forensic Threat Analyst
-                    </CardTitle>
-                  </CardHeader>
-                  
-                  {activeIncident ? (
-                    <CardContent className="p-0 space-y-4 text-sm">
-                      <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
-                        <span className="text-slate-400 font-medium">Incident Status</span>
-                        <span className={`px-2.5 py-0.5 rounded font-black text-xs border ${
-                          (resolvedMap[activeIncident.id] || activeIncident.resolved)
-                            ? "bg-green-500/10 border-green-500/30 text-green-400"
-                            : "bg-red-500/10 border-red-500/30 text-red-400 animate-pulse"
-                        }`}>
-                          {(resolvedMap[activeIncident.id] || activeIncident.resolved) ? "RESOLVED" : "THREAT ACTIVE"}
+            </div>
+
+            {/* Right Column: Selected Threat Detail Explorer */}
+            <Card className="p-5 border-cyan-500/10 bg-[#07111f] rounded-[1.5rem] flex flex-col h-[580px] justify-between">
+              <div>
+                <CardHeader className="p-0 mb-4 shrink-0">
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-cyan-300" />
+                    Forensic Threat Analyst
+                  </CardTitle>
+                </CardHeader>
+                
+                {activeIncident ? (
+                  <CardContent className="p-0 space-y-4 text-sm">
+                    <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
+                      <span className="text-slate-400 font-medium">Incident Status</span>
+                      <span className={`px-2.5 py-0.5 rounded font-black text-xs border ${
+                        (resolvedMap[activeIncident.id] || activeIncident.resolved)
+                          ? "bg-green-500/10 border-green-500/30 text-green-400"
+                          : "bg-red-500/10 border-red-500/30 text-red-400 animate-pulse"
+                      }`}>
+                        {(resolvedMap[activeIncident.id] || activeIncident.resolved) ? "RESOLVED" : "THREAT ACTIVE"}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
+                      <span className="text-slate-400 font-medium">Threat Classifier</span>
+                      <span className="text-white font-bold font-mono">{activeIncident.threat_type?.toUpperCase()}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
+                      <span className="text-slate-400 font-medium">Neural confidence</span>
+                      <span className="text-cyan-300 font-bold font-mono">{activeIncident.confidence}%</span>
+                    </div>
+
+                    <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
+                      <span className="text-slate-400 font-medium">Loss Score bounds</span>
+                      <span className="text-white font-bold font-mono">{(activeIncident.score || 0).toFixed(6)}</span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <span className="text-slate-400 font-medium block">Detailed Description Summary</span>
+                      <p className="text-white font-bold leading-relaxed bg-black/40 border border-white/5 p-3 rounded-xl">
+                        {activeIncident.summary}
+                      </p>
+                    </div>
+
+                    {/* Calibrated Threat Severity Scale */}
+                    <div className="space-y-1 pt-2">
+                      <div className="flex justify-between text-xs text-slate-400 font-mono font-bold">
+                        <span>SEVERITY CRITICALITY</span>
+                        <span className={getSeverityStyle(activeIncident.severity).text}>
+                          {activeIncident.severity?.toUpperCase()}
                         </span>
                       </div>
-
-                      <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
-                        <span className="text-slate-400 font-medium">Threat Classifier</span>
-                        <span className="text-white font-bold font-mono">{activeIncident.threat_type?.toUpperCase()}</span>
+                      <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden border border-white/5">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            activeIncident.severity === "CRITICAL" ? "bg-red-500" : activeIncident.severity === "HIGH" ? "bg-orange-500" : "bg-yellow-400"
+                          }`}
+                          style={{ 
+                            width: activeIncident.severity === "CRITICAL" ? "100%" : activeIncident.severity === "HIGH" ? "70%" : "40%" 
+                          }} 
+                        />
                       </div>
-
-                      <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
-                        <span className="text-slate-400 font-medium">Neural confidence</span>
-                        <span className="text-cyan-300 font-bold font-mono">{activeIncident.confidence}%</span>
-                      </div>
-
-                      <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
-                        <span className="text-slate-400 font-medium">Loss Score bounds</span>
-                        <span className="text-white font-bold font-mono">{(activeIncident.score || 0).toFixed(6)}</span>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <span className="text-slate-400 font-medium block">Detailed Description Summary</span>
-                        <p className="text-white font-bold leading-relaxed bg-black/40 border border-white/5 p-3 rounded-xl">
-                          {activeIncident.summary}
-                        </p>
-                      </div>
-
-                      {/* Calibrated Threat Severity Scale */}
-                      <div className="space-y-1 pt-2">
-                        <div className="flex justify-between text-xs text-slate-400 font-mono font-bold">
-                          <span>SEVERITY CRITICALITY</span>
-                          <span className={getSeverityStyle(activeIncident.severity).text}>
-                            {activeIncident.severity?.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden border border-white/5">
-                          <div 
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              activeIncident.severity === "CRITICAL" ? "bg-red-500" : activeIncident.severity === "HIGH" ? "bg-orange-500" : "bg-yellow-400"
-                            }`}
-                            style={{ 
-                              width: activeIncident.severity === "CRITICAL" ? "100%" : activeIncident.severity === "HIGH" ? "70%" : "40%" 
-                            }} 
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  ) : (
-                    <div className="flex-1 flex items-center justify-center text-slate-500 font-bold">
-                      Awaiting threat selection...
                     </div>
-                  )}
-                </div>
-
-                {activeIncident && !(resolvedMap[activeIncident.id] || activeIncident.resolved) && (
-                  <div className="pt-6 border-t border-cyan-500/10 flex flex-col gap-2 shrink-0">
-                    <Button 
-                      onClick={() => handleDispatch(activeIncident.id)}
-                      disabled={dispatchedIds[activeIncident.id]}
-                      className="w-full py-2.5 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-700 text-black rounded-xl shadow-lg transition-all"
-                    >
-                      {dispatchedIds[activeIncident.id] 
-                        ? "Transmitting Anti-Jamming Code..." 
-                        : "Dispatch RF Anti-Jamming Protocol"}
-                    </Button>
-                    <Button 
-                      onClick={() => handleResolve(activeIncident.id)}
-                      variant="outline"
-                      className="w-full h-9 border-white/10 hover:border-white/20 text-slate-300 font-bold text-xs rounded-xl"
-                    >
-                      Dismiss Alert Indicator
-                    </Button>
+                  </CardContent>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-slate-500 font-bold">
+                    Awaiting threat selection...
                   </div>
                 )}
-              </Card>
+              </div>
 
-            </div>
+              {activeIncident && !(resolvedMap[activeIncident.id] || activeIncident.resolved) && (
+                <div className="pt-6 border-t border-cyan-500/10 flex flex-col gap-2 shrink-0">
+                  <Button 
+                    onClick={() => handleResolve(activeIncident.id)}
+                    className="w-full py-2.5 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-black rounded-xl shadow-lg transition-all"
+                  >
+                    Dismiss Active Alert Indicator
+                  </Button>
+                </div>
+              )}
+            </Card>
 
           </div>
 
