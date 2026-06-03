@@ -17,7 +17,7 @@ export default function SettingsPage() {
 
   const [diagStatus, setDiagStatus] = useState<"idle" | "running" | "success" | "error">("idle");
   const [diagLogs, setDiagLogs] = useState<string[]>([]);
-  const consoleEndRef = useRef<HTMLDivElement | null>(null);
+  const consoleRef = useRef<HTMLDivElement | null>(null);
 
   const runDiagnostics = async () => {
     setDiagStatus("running");
@@ -60,8 +60,8 @@ export default function SettingsPage() {
   };
 
   useEffect(() => {
-    if (consoleEndRef.current) {
-      consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (consoleRef.current) {
+      consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
     }
   }, [diagLogs]);
 
@@ -342,7 +342,10 @@ export default function SettingsPage() {
                       CLEAR
                     </button>
                   </div>
-                  <div className="bg-black/80 font-mono text-[11px] p-4 rounded-xl text-green-400 border border-green-500/20 max-h-48 overflow-y-auto h-48 space-y-1">
+                   <div 
+                    ref={consoleRef}
+                    className="bg-black/80 font-mono text-[11px] p-4 rounded-xl text-green-400 border border-green-500/20 max-h-48 overflow-y-auto h-48 space-y-1"
+                  >
                     {diagLogs.length === 0 ? (
                       <span className="text-slate-600 font-mono">[LOG] Awaiting diagnostic execution command...</span>
                     ) : (
@@ -352,7 +355,6 @@ export default function SettingsPage() {
                         </div>
                       ))
                     )}
-                    <div ref={consoleEndRef} />
                   </div>
                 </div>
               </CardContent>
