@@ -97,13 +97,17 @@ export function Sidebar() {
     <aside
       className="
         w-[220px]
-        min-h-screen
+        h-screen
+        sticky
+        top-0
         border-r
         border-cyan-500/10
         bg-[#050816]
         relative
         overflow-hidden
         shrink-0
+        flex
+        flex-col
       "
     >
       {/* Background Glow */}

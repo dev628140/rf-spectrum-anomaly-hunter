@@ -6,7 +6,22 @@ interface Props {
 }
 
 export function IncidentFeed({ incidents }: Props) {
-  if (!incidents?.data) return null;
+  if (!incidents?.data) {
+    return (
+      <div className="rounded-[1.5rem] border border-cyan-500/10 bg-[#07111f] p-4.5 shadow-[0_0_50px_rgba(0,255,255,0.02)] h-full flex flex-col justify-between">
+        <div className="flex flex-col h-full justify-between">
+          <div className="flex flex-row items-center gap-2 mb-3 pb-0 shrink-0">
+            <AlertTriangle className="h-5 w-5 text-cyan-300 animate-pulse" />
+            <h2 className="text-base font-black text-white">Recent Threats Feed</h2>
+          </div>
+          <div className="flex-1 flex flex-col items-center justify-center py-12 text-slate-555 text-xs font-mono gap-3">
+            <div className="h-7 w-7 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
+            <span>SYNCING INCIDENT REPOSITORY...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const getSeverityColors = (severity: string) => {
     const s = severity?.toUpperCase();
@@ -24,7 +39,7 @@ export function IncidentFeed({ incidents }: Props) {
           <h2 className="text-base font-black text-white">Recent Threats Feed</h2>
         </div>
 
-        <div className="space-y-3 mt-2 max-h-[240px] overflow-y-auto pr-2 custom-scrollbar flex-1">
+        <div className="space-y-3 mt-2 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar flex-1">
           {incidents.data.length === 0 ? (
             <div className="text-center py-6 text-slate-300 font-semibold text-xs">
               No anomalies recorded. All networks secure.
