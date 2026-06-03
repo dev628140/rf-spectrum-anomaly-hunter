@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo, useEffect, useRef, useState } from "react";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useExplanation } from "@/hooks/use-intelligence";
 import { useRFErrorMap, useRFHotspots } from "@/hooks/use-rf";
@@ -301,13 +299,7 @@ export default function ExplainPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#050816] text-white">
-      <Sidebar />
-
-      <main className="flex-1 flex flex-col min-w-0">
-        <Topbar />
-
-        <div className="p-6 space-y-6 overflow-y-auto flex-1">
+    <>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             
             {/* Left side: AI Summary & Attribution */}
@@ -775,9 +767,6 @@ export default function ExplainPage() {
               })()}
             </CardContent>
           </Card>
-
-        </div>
-      </main>
-    </div>
+    </>
   );
 }

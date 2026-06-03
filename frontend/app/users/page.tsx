@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Shield, Key, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -84,13 +82,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#050816] text-white">
-      <Sidebar />
-
-      <main className="flex-1 flex flex-col min-w-0">
-        <Topbar />
-
-        <div className="p-6 space-y-6 overflow-y-auto flex-1">
+    <>
           {/* Header Actions */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -314,8 +306,6 @@ export default function UsersPage() {
             </Card>
 
           </div>
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
