@@ -3,7 +3,8 @@ from backend.db.models.schema import (
     Incident,
     AlertLog,
     RFMetric,
-    ModelSwitch
+    ModelSwitch,
+    Operator
 )
 
 
@@ -201,5 +202,161 @@ class DBService:
         finally:
             db.close()
 
+    def get_all_operators(self):
+        db = SessionLocal()
+        try:
+            return db.query(Operator).order_by(Operator.id.asc()).all()
+        finally:
+            db.close()
 
-db_service = DBService()
+    def create_operator(self, name, role, level, status, avatar=None, color=None, scope=None):
+        db = SessionLocal()
+        try:
+            # Auto-derive avatar and color if not provided
+            if not avatar:
+                initials = "".join([part[0] for part in name.split() if part])[:2].upper()
+                avatar = initials if initials else "OP"
+            if not color:
+                colors = {
+                    "Level 5 (ROOT)": "border-cyan-500/30 text-cyan-300 bg-cyan-500/10",
+                    "Level 4 (SEC_ADMIN)": "border-purple-500/30 text-purple-300 bg-purple-500/10",
+                    "Level 3 (OPERATOR)": "border-teal-500/30 text-teal-300 bg-teal-500/10",
+                    "Level 2 (ANALYST)": "border-blue-500/30 text-blue-300 bg-blue-500/10",
+                    "Level 1 (GUEST)": "border-slate-500/30 text-slate-400 bg-slate-500/5",
+                }
+                color = colors.get(level, "border-cyan-500/30 text-cyan-300 bg-cyan-500/10")
+
+            op = Operator(
+                name=name,
+                role=role,
+                level=level,
+                status=status,
+                avatar=avatar,
+                color=color,
+                scope=scope
+            )
+            db.add(op)
+            db.commit()
+            db.refresh(op)
+            return op
+        finally:
+            db.close()
+
+    def update_operator(self, operator_id, name, role, level, status, scope):
+        db = SessionLocal()
+        try:
+            op = db.query(Operator).filter(Operator.id == operator_id).first()
+            if op:
+                op.name = name
+                op.role = role
+                op.level = level
+                op.status = status
+                op.scope = scope
+                
+                # Derive avatar
+                initials = "".join([part[0] for part in name.split() if part])[:2].upper()
+                op.avatar = initials if initials else "OP"
+                
+                # Derive color
+                colors = {
+                    "Level 5 (ROOT)": "border-cyan-500/30 text-cyan-300 bg-cyan-500/10",
+                    "Level 4 (SEC_ADMIN)": "border-purple-500/30 text-purple-300 bg-purple-500/10",
+                    "Level 3 (OPERATOR)": "border-teal-500/30 text-teal-300 bg-teal-500/10",
+                    "Level 2 (ANALYST)": "border-blue-500/30 text-blue-300 bg-blue-500/10",
+                    "Level 1 (GUEST)": "border-slate-500/30 text-slate-400 bg-slate-500/5",
+                }
+                op.color = colors.get(level, "border-cyan-500/30 text-cyan-300 bg-cyan-500/10")
+                
+                db.commit()
+                db.refresh(op)
+                return op
+            return None
+        finally:
+            db.close()
+
+    def delete_operator(self, operator_id):
+        db = SessionLocal()
+        try:
+            op = db.query(Operator).filter(Operator.id == operator_id).first()
+            if op:
+                db.delete(op)
+                db.commit()
+                return True
+            return False
+        finally:
+            db.close()
+
+    def seed_default_operators(self):
+        db = SessionLocal()
+        try:
+            # Check if operators table is empty
+            count = db.query(Operator).count()
+            if count == 0:
+                print("[DATABASE] Seeding default operator records...")
+                defaults = [
+                    {
+                        "name": "Dr. Elena Vance",
+                        "role": "System Administrator & Chief Engineer",
+                        "level": "Level 5 (ROOT)",
+                        "status": "ACTIVE",
+                        "avatar": "EV",
+                        "color": "border-cyan-500/30 text-cyan-300 bg-cyan-500/10",
+                        "scope": "Full system config, hardware telemetry controls, model deployment, API access governance."
+                    },
+                    {
+                        "name": "Marcus Miller",
+                        "role": "Lead Threat Intelligence Analyst",
+                        "level": "Level 4 (SEC_ADMIN)",
+                        "status": "ACTIVE",
+                        "avatar": "MM",
+                        "color": "border-purple-500/30 text-purple-300 bg-purple-500/10",
+                        "scope": "Incident classification triggers, threat model oversight, Discord webhook routing control."
+                    },
+                    {
+                        "name": "Aisha Rahman",
+                        "role": "Operations Security Supervisor",
+                        "level": "Level 3 (OPERATOR)",
+                        "status": "STANDBY",
+                        "avatar": "AR",
+                        "color": "border-teal-500/30 text-teal-300 bg-teal-500/10",
+                        "scope": "Incident log replays, telemetry spectrogram observations, model metrics tracking."
+                    },
+                    {
+                        "name": "Devon Brooks",
+                        "role": "Junior Signal Analyst",
+                        "level": "Level 2 (ANALYST)",
+                        "status": "OFFLINE",
+                        "avatar": "DB",
+                        "color": "border-slate-500/30 text-slate-400 bg-slate-500/5",
+                        "scope": "Read-only access to spectrogram analysis, telemetry metrics, and model classifications."
+                    }
+                ]
+                for data in defaults:
+                    op = Operator(**data)
+                    db.add(op)
+                
+                # Seed some realistic initial audit logs
+                initial_audits = [
+                    {"channel": "AUDIT", "status": "SUCCESS", "message": "Root login established from verified operator subnet: 192.168.1.42."},
+                    {"channel": "AUDIT", "status": "SUCCESS", "message": "Operator Elena Vance switched system runtime to Random Forest model."},
+                    {"channel": "AUDIT", "status": "SUCCESS", "message": "TLS access handshake established with edge node #001."},
+                    {"channel": "AUDIT", "status": "SUCCESS", "message": "Access governance directory synchronized successfully with local SQLite database."}
+                ]
+                for audit in initial_audits:
+                    log = AlertLog(
+                        channel=audit["channel"],
+                        status=audit["status"],
+                        message=audit["message"]
+                    )
+                    db.add(log)
+
+                db.commit()
+                print("[DATABASE] Default operators and audit logs seeded successfully.")
+        except Exception as seed_err:
+            print(f"[DATABASE] Error during seeding operators: {seed_err}")
+            db.rollback()
+        finally:
+            db.close()
+
+
+db_service = DBService()

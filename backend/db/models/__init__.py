@@ -3,5 +3,6 @@ from backend.db.models.schema import (
     Incident,
     AlertLog,
     RFMetric,
-    ModelSwitch
+    ModelSwitch,
+    Operator
 )

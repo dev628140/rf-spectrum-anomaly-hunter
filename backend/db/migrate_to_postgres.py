@@ -8,7 +8,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from backend.db.models.schema import Incident, AlertLog, RFMetric, ModelSwitch
+from backend.db.models.schema import Incident, AlertLog, RFMetric, ModelSwitch, Operator
 
 def migrate():
     # 1. Connect to local SQLite database
@@ -119,13 +119,30 @@ def migrate():
             )
             pg_session.add(new_switch)
 
+        # --- E. Migrate Operators ---
+        operators = sqlite_session.query(Operator).all()
+        print(f"[MIGRATION] Found {len(operators)} Operators in SQLite. Migrating...")
+        pg_session.query(Operator).delete()
+        for op in operators:
+            new_op = Operator(
+                id=op.id,
+                name=op.name,
+                role=op.role,
+                level=op.level,
+                status=op.status,
+                avatar=op.avatar,
+                color=op.color,
+                scope=op.scope
+            )
+            pg_session.add(new_op)
+
         # Commit transaction
         pg_session.commit()
 
-        # --- E. Reset PostgreSQL Sequence Generators (CRITICAL) ---
+        # --- F. Reset PostgreSQL Sequence Generators (CRITICAL) ---
         print("[MIGRATION] Resetting PostgreSQL serial key sequence generators...")
         from sqlalchemy import text
-        for table in ["incidents", "alert_logs", "rf_metrics", "model_switches"]:
+        for table in ["incidents", "alert_logs", "rf_metrics", "model_switches", "operators"]:
             try:
                 pg_session.execute(text(f"SELECT setval(pg_get_serial_sequence('{table}', 'id'), COALESCE(MAX(id), 1)) FROM {table};"))
             except Exception as seq_err:

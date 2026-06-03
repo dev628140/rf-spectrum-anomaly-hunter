@@ -43,7 +43,7 @@ Base = declarative_base()
 
 # Auto-create all tables
 try:
-    from backend.db.models.schema import Incident, AlertLog, RFMetric, ModelSwitch
+    from backend.db.models.schema import Incident, AlertLog, RFMetric, ModelSwitch, Operator
     Base.metadata.create_all(bind=engine)
     print("[DATABASE] All tables verified/created successfully.")
 except Exception as table_err:

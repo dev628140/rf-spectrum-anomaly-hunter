@@ -77,6 +77,18 @@ def rotate_cert():
     # Generate a real random X.509 signature hash
     seed = f"sdr-node-token-rotation-{time.time()}"
     new_hash = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    
+    # Save audit record in DB
+    try:
+        from backend.db.db_service import db_service
+        db_service.create_alert_log(
+            channel="AUDIT",
+            status="SUCCESS",
+            message=f"X.509 MQTTS SSL/TLS Certificate rotated. New SHA-256 fingerprint deployed: {new_hash[:16]}..."
+        )
+    except Exception as e:
+        print(f"[HEALTH API] Failed to log cert rotation audit event: {e}")
+
     return {
         "status": "SUCCESS",
         "channel": "HiveMQ SSL/TLS Certificate",

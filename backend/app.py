@@ -19,6 +19,7 @@ from backend.api.routes.explainability import router as explain_router
 from backend.api.routes.history import router as history_router
 from backend.api.routes.intelligence import router as intel_router
 from backend.api.routes.model import router as model_router
+from backend.api.routes.operators import router as operators_router
 
 
 app = FastAPI(title="RF Threat Intelligence Platform API")
@@ -44,6 +45,7 @@ app.include_router(explain_router)
 app.include_router(history_router)
 app.include_router(intel_router)
 app.include_router(model_router, prefix="/api/model")
+app.include_router(operators_router)
 
 @app.get("/")
 async def root():
@@ -64,6 +66,13 @@ def run_edge_runtime():
 
 @app.on_event("startup")
 def startup_event():
+    # Seed default operators if table is empty
+    try:
+        from backend.db.db_service import db_service
+        db_service.seed_default_operators()
+    except Exception as e:
+        print(f"[BACKEND] Failed to seed default operators: {e}")
+
     print("[BACKEND] Spawning Edge Ingestion Runtime in background thread...")
     t = threading.Thread(target=run_edge_runtime, daemon=True)
     t.start()

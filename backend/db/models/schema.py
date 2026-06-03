@@ -58,3 +58,16 @@ class ModelSwitch(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     from_model = Column(String(100))
     to_model = Column(String(100))
+
+
+class Operator(Base):
+    __tablename__ = "operators"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    role = Column(String(100), nullable=False)
+    level = Column(String(50), nullable=False)
+    status = Column(String(50), default="ACTIVE")
+    avatar = Column(String(10), nullable=False)
+    color = Column(String(200), nullable=True)
+    scope = Column(Text, nullable=True)
