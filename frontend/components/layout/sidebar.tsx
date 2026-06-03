@@ -282,7 +282,7 @@ export function Sidebar() {
                     <div className="flex flex-col min-w-0">
                       <span
                         className={`
-                          text-[0.94rem]
+                          text-[0.92rem]
                           font-bold
                           leading-none
                           truncate
@@ -299,7 +299,7 @@ export function Sidebar() {
 
                       <span
                         className="
-                          text-[0.70rem]
+                          text-[0.7rem]
                           mt-0.5
                           font-medium
                           leading-tight
