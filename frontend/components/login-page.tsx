@@ -153,40 +153,20 @@ export default function LoginPage() {
             <div className="w-full border-t border-white/5" />
           </div>
           <span className="relative px-3 bg-[#07111f] text-slate-500 text-[9px] font-bold tracking-widest uppercase font-mono">
-            Or Quick Access
+            Or Guest Access
           </span>
         </div>
 
         {/* Quick Logins presets */}
-        <div className="grid grid-cols-3 gap-2 pt-1 font-mono text-[9px] font-black">
-          <button
-            type="button"
-            onClick={() => handleQuickLogin("admin")}
-            disabled={isAuthenticating}
-            className="border border-cyan-500/25 hover:border-cyan-400 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-300 p-2.5 rounded-xl transition-all duration-200 hover:scale-[1.02] flex flex-col items-center gap-1 justify-center shadow-lg"
-          >
-            <Shield className="h-4 w-4" />
-            <span>ADMIN</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => handleQuickLogin("user")}
-            disabled={isAuthenticating}
-            className="border border-purple-500/25 hover:border-purple-400 bg-purple-500/5 hover:bg-purple-500/10 text-purple-300 p-2.5 rounded-xl transition-all duration-200 hover:scale-[1.02] flex flex-col items-center gap-1 justify-center shadow-lg"
-          >
-            <User className="h-4 w-4" />
-            <span>OPERATOR</span>
-          </button>
-
+        <div className="font-mono text-[9px] font-black">
           <button
             type="button"
             onClick={() => handleQuickLogin("guest")}
             disabled={isAuthenticating}
-            className="border border-slate-500/20 hover:border-slate-400 bg-slate-500/5 hover:bg-slate-500/10 text-slate-400 hover:text-white p-2.5 rounded-xl transition-all duration-200 hover:scale-[1.02] flex flex-col items-center gap-1 justify-center shadow-lg"
+            className="w-full border border-slate-500/25 hover:border-slate-400 bg-slate-500/5 hover:bg-slate-500/10 text-slate-400 hover:text-white p-3 rounded-xl transition-all duration-200 hover:scale-[1.01] flex items-center gap-2 justify-center shadow-lg"
           >
-            <Eye className="h-4 w-4" />
-            <span>GUEST</span>
+            <Eye className="h-4.5 w-4.5 text-slate-400" />
+            <span>CONTINUE AS GUEST (READ-ONLY)</span>
           </button>
         </div>
 
