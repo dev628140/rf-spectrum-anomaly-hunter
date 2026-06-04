@@ -8,7 +8,7 @@ import { api } from "@/lib/api";
 
 export default function LoginPage() {
   const { login } = useAuthStore();
-  const [mode, setMode] = useState<"login" | "signup" | "details">("login");
+  const [mode, setMode] = useState<"login" | "signup">("login");
   
   // Login State
   const [username, setUsername] = useState("");
@@ -16,15 +16,11 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isRootAccess, setIsRootAccess] = useState(false);
   
-  // Signup State (Step 1)
+  // Signup State
+  const [fullName, setFullName] = useState("");
   const [regUsername, setRegUsername] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regRoleType, setRegRoleType] = useState<"admin" | "operator">("operator");
-  
-  // Profile Details State (Step 2)
-  const [fullName, setFullName] = useState("");
-  const [roleDesc, setRoleDesc] = useState("");
-  const [accessScope, setAccessScope] = useState("");
   
   const [errorMsg, setErrorMsg] = useState("");
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -64,20 +60,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleSignupNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!regUsername.trim() || !regPassword.trim()) {
-      setErrorMsg("Username and password are required.");
-      return;
-    }
-    setErrorMsg("");
-    setMode("details");
-  };
-
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !roleDesc.trim()) {
-      setErrorMsg("Full Name and Role Description are required.");
+    if (!fullName.trim() || !regUsername.trim() || !regPassword.trim()) {
+      setErrorMsg("Full Name, Username, and Password are required.");
       return;
     }
 
@@ -85,15 +71,19 @@ export default function LoginPage() {
     setErrorMsg("");
 
     const level = regRoleType === "admin" ? "Level 5 (ROOT)" : "Level 3 (OPERATOR)";
+    const roleDesc = regRoleType === "admin" ? "System Administrator" : "RF Operator";
+    const defaultScope = regRoleType === "admin"
+      ? "live,alerts,analytics,history,models,explain,settings,users"
+      : "live,alerts,analytics,explain,history";
 
     try {
       const res = await api.post("/api/auth/signup", {
         username: regUsername.trim(),
         password: regPassword.trim(),
         name: fullName.trim(),
-        role: roleDesc.trim(),
+        role: roleDesc,
         level: level,
-        scope: accessScope.trim()
+        scope: defaultScope
       });
 
       if (res.data && res.data.status === "SUCCESS") {
@@ -111,7 +101,6 @@ export default function LoginPage() {
     } catch (err: any) {
       setErrorMsg(err.response?.data?.detail || "Signup failed. Username may be taken.");
       setIsAuthenticating(false);
-      setMode("signup"); // Go back to credentials step if error
     }
   };
 
@@ -269,9 +258,21 @@ export default function LoginPage() {
           </>
         )}
 
-        {/* --- SIGNUP MODE (Step 1) --- */}
+        {/* --- SIGNUP MODE --- */}
         {mode === "signup" && (
-          <form onSubmit={handleSignupNext} className="space-y-4">
+          <form onSubmit={handleSignupSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider font-mono">Full Name</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="e.g. Dr. Gordon Freeman"
+                required
+                className="w-full bg-black/40 border border-white/5 hover:border-cyan-500/20 focus:border-cyan-500 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition-all placeholder-slate-650 font-semibold"
+              />
+            </div>
+
             <div className="space-y-1.5">
               <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider font-mono">Create Username</label>
               <input
@@ -338,72 +339,6 @@ export default function LoginPage() {
               
               <Button
                 type="submit"
-                className="flex-1 py-3.5 bg-cyan-500 hover:bg-cyan-400 text-black font-black text-xs uppercase tracking-widest rounded-xl flex items-center justify-center gap-1 hover:scale-[1.01]"
-              >
-                Next Step
-                <ChevronRight className="h-4.5 w-4.5 stroke-[2.5]" />
-              </Button>
-            </div>
-          </form>
-        )}
-
-        {/* --- DETAILS MODE (Step 2) --- */}
-        {mode === "details" && (
-          <form onSubmit={handleSignupSubmit} className="space-y-4 font-semibold">
-            <div className="p-3 bg-cyan-500/5 border border-cyan-500/20 text-cyan-300 text-[10px] font-mono rounded-xl leading-relaxed">
-              ACCOUNT SIGNUP CREATED. PLEASE SPECIFY YOUR OPERATOR RECORD DETAILS TO COMPLETE INGRESS INSTRUCTIONS.
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider font-mono">Full Name</label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. Dr. Gordon Freeman"
-                required
-                disabled={isAuthenticating}
-                className="w-full bg-black/40 border border-white/5 hover:border-cyan-500/20 focus:border-cyan-500 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition-all placeholder-slate-650 font-semibold"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider font-mono">Role Description</label>
-              <input
-                type="text"
-                value={roleDesc}
-                onChange={(e) => setRoleDesc(e.target.value)}
-                placeholder="e.g. Ingestion Core Supervisor"
-                required
-                disabled={isAuthenticating}
-                className="w-full bg-black/40 border border-white/5 hover:border-cyan-500/20 focus:border-cyan-500 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition-all placeholder-slate-650 font-semibold"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider font-mono">Access Scope constraints</label>
-              <textarea
-                value={accessScope}
-                onChange={(e) => setAccessScope(e.target.value)}
-                placeholder="Describe scopes and frequency band clearances (e.g. Ingestion loop #03 monitor)"
-                rows={2}
-                disabled={isAuthenticating}
-                className="w-full bg-black/40 border border-white/5 hover:border-cyan-500/20 focus:border-cyan-500 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition-all placeholder-slate-650 font-semibold resize-none"
-              />
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                onClick={() => setMode("signup")}
-                disabled={isAuthenticating}
-                className="flex-1 py-3.5 bg-transparent border border-white/10 hover:border-white/20 text-slate-350 text-xs font-bold rounded-xl"
-              >
-                Back
-              </Button>
-              
-              <Button
-                type="submit"
                 disabled={isAuthenticating}
                 className="flex-1 py-3.5 bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-800 text-black font-black text-xs uppercase tracking-widest rounded-xl flex items-center justify-center gap-1 hover:scale-[1.01]"
               >
@@ -411,8 +346,8 @@ export default function LoginPage() {
                   <span className="h-3.5 w-3.5 border-2 border-black border-t-transparent animate-spin rounded-full" />
                 ) : (
                   <>
-                    Deploy Ingress
-                    <CheckCircle className="h-4.5 w-4.5" />
+                    Sign Up
+                    <ArrowRight className="h-4.5 w-4.5" />
                   </>
                 )}
               </Button>
