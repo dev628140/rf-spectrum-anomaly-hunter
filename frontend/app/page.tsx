@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import { RFSpectrum } from "@/components/dashboard/rf-spectrum";
 import { RFWaterfall } from "@/components/dashboard/rf-waterfall";
 import { ModelComparison } from "@/components/dashboard/model-comparison";
@@ -7,14 +7,21 @@ import { ExplanationPanel } from "@/components/dashboard/explanation-panel";
 import { IncidentFeed } from "@/components/dashboard/incident-feed";
 import { useIncidents } from "@/hooks/use-history";
 import { useExplanation } from "@/hooks/use-intelligence";
+import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
+import { RestrictedOverlay } from "@/components/restricted-overlay";
 
 export default function HomePage() {
+  const { user } = useAuthStore();
+  const hasAccess = hasFeatureAccess(user, "live");
+  
   // Load real-time analytics queries
   const incidents = useIncidents();
   const explanation = useExplanation();
-
+ 
   return (
-    <>
+    <div className="relative min-h-[calc(100vh-120px)] w-full">
+      {!hasAccess && <RestrictedOverlay message="Live RF telemetry monitoring requires specific clearance." />}
+      <div className="space-y-6">
       {/* Telemetry Charts: FFT & Spectrogram Heatmap (Symmetric Height 460px) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         <div className="min-w-0 flex flex-col h-[460px]">
@@ -70,6 +77,7 @@ export default function HomePage() {
         </div>
 
       </div>
-    </>
-  );
+    </div>
+  </div>
+);
 }

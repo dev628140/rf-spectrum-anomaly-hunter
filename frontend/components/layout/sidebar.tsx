@@ -16,7 +16,7 @@ import {
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
 
 const items = [
   {
@@ -193,7 +193,20 @@ export function Sidebar() {
 
               const active =
                 pathname === item.href;
-              const locked = isGuest && ["/settings", "/users", "/history", "/models"].includes(item.href);
+              
+              const routeToFeatureKey = (href: string): string => {
+                if (href === "/") return "live";
+                if (href === "/alerts") return "alerts";
+                if (href === "/analytics") return "analytics";
+                if (href === "/history") return "history";
+                if (href === "/models") return "models";
+                if (href === "/explain") return "explain";
+                if (href === "/settings") return "settings";
+                if (href === "/users") return "users";
+                return "live";
+              };
+
+              const locked = !hasFeatureAccess(user, routeToFeatureKey(item.href));
 
               return (
                 <Link

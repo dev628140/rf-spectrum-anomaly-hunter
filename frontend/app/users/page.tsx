@@ -1,16 +1,27 @@
 "use client";
-
+ 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Shield, Key, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
 import { RestrictedOverlay } from "@/components/restricted-overlay";
+
+const PLATFORM_FEATURES = [
+  { id: "live", label: "Live RF Monitoring" },
+  { id: "alerts", label: "Threat Alerts Center" },
+  { id: "analytics", label: "RF Analytics Console" },
+  { id: "history", label: "Historical RF Analysis" },
+  { id: "models", label: "AI Model Operations" },
+  { id: "explain", label: "Explainable AI (XAI)" },
+  { id: "settings", label: "System Configuration" },
+  { id: "users", label: "User Access Governance" }
+];
 
 export default function UsersPage() {
   const { user } = useAuthStore();
-  const isGuest = user?.role === "guest";
+  const hasAccess = hasFeatureAccess(user, "users");
   const isUser = user?.role === "user";
 
   const [operators, setOperators] = useState<any[]>([]);
@@ -195,10 +206,10 @@ export default function UsersPage() {
   };
 
   const currentOp = operators[selectedUserIdx] || operators[0] || null;
-
+ 
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full flex flex-col gap-6">
-      {isGuest && <RestrictedOverlay message="Access Governance panel requires administrative clearance." />}
+      {!hasAccess && <RestrictedOverlay message="Access Governance panel is locked under current access scope." />}
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -262,7 +273,22 @@ export default function UsersPage() {
                         </span>
                       </div>
                       <p className="text-slate-400 text-xs font-semibold">{op.role}</p>
-                      <p className="text-slate-500 text-xs font-medium pt-1.5 max-w-[600px] leading-relaxed">{op.scope}</p>
+                      <div className="flex flex-wrap gap-1.5 pt-1.5 max-w-[600px]">
+                        {op.scope ? (
+                          op.scope.split(",").map((s: string) => {
+                            const trimmed = s.trim();
+                            if (!trimmed) return null;
+                            const feat = PLATFORM_FEATURES.find(f => f.id === trimmed);
+                            return (
+                              <span key={trimmed} className="text-[10px] font-mono font-bold tracking-wider px-2 py-0.5 rounded-md border border-cyan-500/20 bg-cyan-500/5 text-cyan-300">
+                                {feat?.label || trimmed}
+                              </span>
+                            );
+                          })
+                        ) : (
+                          <span className="text-[10px] font-mono text-slate-500">No feature clearances.</span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -553,13 +579,31 @@ export default function UsersPage() {
 
               <div>
                 <label className="block text-slate-400 text-xs font-bold mb-1.5 uppercase font-mono">Permitted Access Scope</label>
-                <textarea 
-                  value={provScope}
-                  onChange={(e) => setProvScope(e.target.value)}
-                  placeholder="Describe permissions, constraints, and nodes this operator has access to..."
-                  rows={3}
-                  className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition-all font-semibold resize-none"
-                />
+                <div className="grid grid-cols-2 gap-2.5 p-3.5 bg-black/40 border border-white/10 rounded-xl">
+                  {PLATFORM_FEATURES.map((feat) => {
+                    const checked = provScope.split(",").map(s => s.trim()).includes(feat.id);
+                    return (
+                      <label key={feat.id} className="flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => {
+                            const currentParts = provScope ? provScope.split(",").map(s => s.trim()).filter(Boolean) : [];
+                            let newParts;
+                            if (currentParts.includes(feat.id)) {
+                              newParts = currentParts.filter(p => p !== feat.id);
+                            } else {
+                              newParts = [...currentParts, feat.id];
+                            }
+                            setProvScope(newParts.join(","));
+                          }}
+                          className="rounded border-white/20 bg-black/60 text-cyan-500 focus:ring-0 focus:ring-offset-0 h-4 w-4"
+                        />
+                        <span>{feat.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             
@@ -660,12 +704,31 @@ export default function UsersPage() {
 
               <div>
                 <label className="block text-slate-400 text-xs font-bold mb-1.5 uppercase font-mono">Permitted Access Scope</label>
-                <textarea 
-                  value={modScope}
-                  onChange={(e) => setModScope(e.target.value)}
-                  rows={3}
-                  className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition-all font-semibold resize-none"
-                />
+                <div className="grid grid-cols-2 gap-2.5 p-3.5 bg-black/40 border border-white/10 rounded-xl">
+                  {PLATFORM_FEATURES.map((feat) => {
+                    const checked = modScope.split(",").map(s => s.trim()).includes(feat.id);
+                    return (
+                      <label key={feat.id} className="flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => {
+                            const currentParts = modScope ? modScope.split(",").map(s => s.trim()).filter(Boolean) : [];
+                            let newParts;
+                            if (currentParts.includes(feat.id)) {
+                              newParts = currentParts.filter(p => p !== feat.id);
+                            } else {
+                              newParts = [...currentParts, feat.id];
+                            }
+                            setModScope(newParts.join(","));
+                          }}
+                          className="rounded border-white/20 bg-black/60 text-cyan-500 focus:ring-0 focus:ring-offset-0 h-4 w-4"
+                        />
+                        <span>{feat.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             

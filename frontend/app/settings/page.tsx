@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Cpu, HardDrive, Shield, Server, Activity } from "lucide-react";
 import { api } from "@/lib/api";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
 import { RestrictedOverlay } from "@/components/restricted-overlay";
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
-  const isGuest = user?.role === "guest";
+  const hasAccess = hasFeatureAccess(user, "settings");
   const isUser = user?.role === "user";
 
   const [startFreq, setStartFreq] = useState("88.0");
@@ -163,7 +163,7 @@ export default function SettingsPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full flex flex-col gap-6">
-      {isGuest && <RestrictedOverlay message="System configuration panel requires administrative clearance." />}
+      {!hasAccess && <RestrictedOverlay message="System configuration panel is locked under current access scope." />}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             
             {/* RF Parameters Card */}

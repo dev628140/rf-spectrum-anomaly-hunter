@@ -297,48 +297,15 @@ class DBService:
                 print("[DATABASE] Seeding default operator records...")
                 defaults = [
                     {
-                        "name": "Dr. Elena Vance",
-                        "role": "System Administrator & Chief Engineer",
+                        "name": "System Root Admin",
+                        "role": "System Root Administrator",
                         "level": "Level 5 (ROOT)",
                         "status": "ACTIVE",
-                        "avatar": "EV",
+                        "avatar": "RA",
                         "color": "border-cyan-500/30 text-cyan-300 bg-cyan-500/10",
-                        "scope": "Full system config, hardware telemetry controls, model deployment, API access governance.",
-                        "username": "admin",
-                        "password": "admin"
-                    },
-                    {
-                        "name": "Marcus Miller",
-                        "role": "Lead Threat Intelligence Analyst",
-                        "level": "Level 4 (SEC_ADMIN)",
-                        "status": "ACTIVE",
-                        "avatar": "MM",
-                        "color": "border-purple-500/30 text-purple-300 bg-purple-500/10",
-                        "scope": "Incident classification triggers, threat model oversight, Discord webhook routing control.",
-                        "username": "user",
-                        "password": "user"
-                    },
-                    {
-                        "name": "Aisha Rahman",
-                        "role": "Operations Security Supervisor",
-                        "level": "Level 3 (OPERATOR)",
-                        "status": "STANDBY",
-                        "avatar": "AR",
-                        "color": "border-teal-500/30 text-teal-300 bg-teal-500/10",
-                        "scope": "Incident log replays, telemetry spectrogram observations, model metrics tracking.",
-                        "username": "operator",
-                        "password": "operator"
-                    },
-                    {
-                        "name": "Devon Brooks",
-                        "role": "Junior Signal Analyst",
-                        "level": "Level 2 (ANALYST)",
-                        "status": "OFFLINE",
-                        "avatar": "DB",
-                        "color": "border-slate-500/30 text-slate-400 bg-slate-500/5",
-                        "scope": "Read-only access to spectrogram analysis, telemetry metrics, and model classifications.",
-                        "username": "analyst",
-                        "password": "analyst"
+                        "scope": "live,alerts,analytics,history,models,explain,settings,users",
+                        "username": "dev628140",
+                        "password": "Kis123!hore"
                     }
                 ]
                 for data in defaults:
@@ -348,7 +315,6 @@ class DBService:
                 # Seed some realistic initial audit logs
                 initial_audits = [
                     {"channel": "AUDIT", "status": "SUCCESS", "message": "Root login established from verified operator subnet: 192.168.1.42."},
-                    {"channel": "AUDIT", "status": "SUCCESS", "message": "Operator Elena Vance switched system runtime to Random Forest model."},
                     {"channel": "AUDIT", "status": "SUCCESS", "message": "TLS access handshake established with edge node #001."},
                     {"channel": "AUDIT", "status": "SUCCESS", "message": "Access governance directory synchronized successfully with local SQLite database."}
                 ]
@@ -359,9 +325,9 @@ class DBService:
                         message=audit["message"]
                     )
                     db.add(log)
-
+ 
                 db.commit()
-                print("[DATABASE] Default operators and audit logs seeded successfully.")
+                print("[DATABASE] Default operator and audit logs seeded successfully.")
         except Exception as seed_err:
             print(f"[DATABASE] Error during seeding operators: {seed_err}")
             db.rollback()

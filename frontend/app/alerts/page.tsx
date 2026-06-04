@@ -16,10 +16,12 @@ import {
   Skull
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
+import { RestrictedOverlay } from "@/components/restricted-overlay";
 
 export default function AlertsPage() {
   const { user } = useAuthStore();
+  const hasAccess = hasFeatureAccess(user, "alerts");
   const isAdmin = user?.role === "admin";
   const incidentsQuery = useIncidents();
   const rawIncidents = incidentsQuery.data?.data || [];
@@ -63,7 +65,9 @@ export default function AlertsPage() {
   const activeCount = rawIncidents.length - Object.keys(resolvedMap).length;
 
   return (
-    <>
+    <div className="relative min-h-[calc(100vh-120px)] w-full">
+      {!hasAccess && <RestrictedOverlay message="Access to threat alerts center requires specific clearance." />}
+      <div className="space-y-6">
           
           {/* Dashboard Telemetry Counters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -290,6 +294,7 @@ export default function AlertsPage() {
             </Card>
 
           </div>
-    </>
+      </div>
+    </div>
   );
 }

@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button";
 import { useModelHistory, useSwitchModel } from "@/hooks/use-model";
 import { Cpu, RefreshCw, CheckCircle2, History, AlertTriangle, Layers, Activity } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
 import { RestrictedOverlay } from "@/components/restricted-overlay";
 
 export function ModelControl() {
   const { user } = useAuthStore();
-  const isGuest = user?.role === "guest";
+  const hasAccess = hasFeatureAccess(user, "models");
   const isUser = user?.role === "user";
 
   const history = useModelHistory();
@@ -27,7 +27,7 @@ export function ModelControl() {
 
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full space-y-6">
-      {isGuest && <RestrictedOverlay message="Model operations governance console requires administrative clearance." />}
+      {!hasAccess && <RestrictedOverlay message="Model operations governance console is locked under current access scope." />}
       {/* Active Model Controls Card */}
       <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
         <CardHeader className="flex flex-row items-center justify-between pb-3">

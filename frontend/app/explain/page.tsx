@@ -16,8 +16,12 @@ import {
 } from "recharts";
 import { useRFStore } from "@/store/rf-store";
 import { useSwitchModel } from "@/hooks/use-model";
+import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
+import { RestrictedOverlay } from "@/components/restricted-overlay";
 
 export default function ExplainPage() {
+  const { user } = useAuthStore();
+  const hasAccess = hasFeatureAccess(user, "explain");
   const explanationQuery = useExplanation();
   const errorMapQuery = useRFErrorMap();
   const hotspotsQuery = useRFHotspots();
@@ -299,8 +303,10 @@ export default function ExplainPage() {
   };
 
   return (
-    <>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div className="relative min-h-[calc(100vh-120px)] w-full">
+      {!hasAccess && <RestrictedOverlay message="Access to Explainable AI details is locked under current access scope." />}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             
             {/* Left side: AI Summary & Attribution */}
             <Card className="p-5 border-cyan-500/10 bg-[#07111f] flex flex-col justify-between shadow-[0_0_50px_rgba(0,255,255,0.02)]">
@@ -767,6 +773,7 @@ export default function ExplainPage() {
               })()}
             </CardContent>
           </Card>
-    </>
+      </div>
+    </div>
   );
 }

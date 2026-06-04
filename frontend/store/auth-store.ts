@@ -97,3 +97,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     });
   }
 }));
+
+export function hasFeatureAccess(user: any | null, featureKey: string): boolean {
+  if (!user) return false;
+  if (user.role === "admin" || user.level?.toUpperCase().includes("ROOT") || user.level?.toUpperCase().includes("ADMIN")) return true;
+  if (user.role === "guest") {
+    return ["live", "alerts", "analytics", "explain"].includes(featureKey);
+  }
+  const scopes = user.scope ? user.scope.split(",") : [];
+  return scopes.includes(featureKey);
+}

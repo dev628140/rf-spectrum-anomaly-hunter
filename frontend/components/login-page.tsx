@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isRootAccess, setIsRootAccess] = useState(false);
   
   // Signup State (Step 1)
   const [regUsername, setRegUsername] = useState("");
@@ -30,7 +31,8 @@ export default function LoginPage() {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !password.trim()) {
+    const finalUsername = isRootAccess ? "dev628140" : username.trim();
+    if (!finalUsername || !password.trim()) {
       setErrorMsg("Authentication credentials required.");
       return;
     }
@@ -40,7 +42,7 @@ export default function LoginPage() {
 
     try {
       const res = await api.post("/api/auth/login", {
-        username: username.trim(),
+        username: finalUsername,
         password: password.trim()
       });
       
@@ -59,40 +61,6 @@ export default function LoginPage() {
     } catch (err: any) {
       setErrorMsg(err.response?.data?.detail || "Access Denied: Invalid credentials.");
       setIsAuthenticating(false);
-    }
-  };
-
-  const handleAdminDirectLogin = async () => {
-    setIsAuthenticating(true);
-    setErrorMsg("");
-    try {
-      const res = await api.post("/api/auth/login", {
-        username: "admin",
-        password: "admin"
-      });
-      if (res.data && res.data.status === "SUCCESS") {
-        const u = res.data.user;
-        login({
-          username: u.username,
-          name: u.name,
-          role: "admin",
-          level: u.level,
-          avatar: u.avatar,
-          color: u.color,
-          scope: u.scope
-        });
-      }
-    } catch (err: any) {
-      // Fallback in case seed database is absent during testing
-      login({
-        username: "admin",
-        name: "Dr. Elena Vance",
-        role: "admin",
-        level: "Level 5 (ROOT)",
-        avatar: "EV",
-        color: "border-cyan-500/30 text-cyan-300 bg-cyan-500/10",
-        scope: "Full system config, hardware telemetry controls, model deployment, API access governance."
-      });
     }
   };
 
@@ -199,6 +167,13 @@ export default function LoginPage() {
         {/* --- LOGIN MODE --- */}
         {mode === "login" && (
           <>
+            {isRootAccess && (
+              <div className="p-3 bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-bold font-mono rounded-xl flex items-center gap-2 animate-pulse">
+                <Shield className="h-4 w-4 text-red-400 shrink-0 animate-spin" style={{ animationDuration: "3s" }} />
+                <span>SECURE ROOT INGRESS MODE ACTIVE</span>
+              </div>
+            )}
+            
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider font-mono">Username</label>
@@ -206,11 +181,11 @@ export default function LoginPage() {
                   <User className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
                   <input
                     type="text"
-                    value={username}
+                    value={isRootAccess ? "dev628140" : username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Secure Username"
-                    className="w-full bg-black/40 border border-white/5 hover:border-cyan-500/20 focus:border-cyan-500 rounded-xl pl-10.5 pr-4 py-2.5 text-sm text-white focus:outline-none transition-all duration-300 placeholder-slate-600 font-semibold"
-                    disabled={isAuthenticating}
+                    className="w-full bg-black/40 border border-white/5 hover:border-cyan-500/20 focus:border-cyan-500 rounded-xl pl-10.5 pr-4 py-2.5 text-sm text-white focus:outline-none transition-all duration-300 placeholder-slate-600 font-semibold disabled:opacity-60 disabled:border-red-500/30 disabled:text-red-300"
+                    disabled={isAuthenticating || isRootAccess}
                   />
                 </div>
               </div>
@@ -223,8 +198,8 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Access Key Signature"
-                    className="w-full bg-black/40 border border-white/5 hover:border-cyan-500/20 focus:border-cyan-500 rounded-xl pl-10.5 pr-10 py-2.5 text-sm text-white focus:outline-none transition-all duration-300 placeholder-slate-600 font-semibold"
+                    placeholder={isRootAccess ? "Root Security Passcode" : "Access Key Signature"}
+                    className="w-full bg-black/40 border border-white/5 hover:border-cyan-500/20 focus:border-cyan-500 rounded-xl pl-10.5 pr-10 py-2.5 text-sm text-white focus:outline-none transition-all duration-300 placeholder-slate-600 font-semibold focus:ring-1 focus:ring-cyan-500"
                     disabled={isAuthenticating}
                   />
                   <button
@@ -247,7 +222,7 @@ export default function LoginPage() {
                     <span className="h-3.5 w-3.5 border-2 border-black border-t-transparent animate-spin rounded-full" />
                   ) : (
                     <>
-                      Link Access
+                      {isRootAccess ? "Authenticate Root" : "Link Access"}
                       <ArrowRight className="h-4 w-4 stroke-[2.5]" />
                     </>
                   )}
@@ -255,28 +230,42 @@ export default function LoginPage() {
               </div>
             </form>
 
-            {/* SEPARATE ADMIN LOGIN BUTTON */}
-            <div className="pt-1">
-              <Button
-                type="button"
-                onClick={handleAdminDirectLogin}
-                disabled={isAuthenticating}
-                className="w-full py-3.5 border border-red-500/30 hover:border-red-500 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <Shield className="h-4 w-4 text-red-400 animate-pulse" />
-                System Root Admin Access
-              </Button>
-            </div>
+            {isRootAccess ? (
+              <div className="pt-1">
+                <Button
+                  type="button"
+                  onClick={() => { setIsRootAccess(false); setErrorMsg(""); setPassword(""); }}
+                  disabled={isAuthenticating}
+                  className="w-full py-3.5 border border-white/10 hover:border-white/20 bg-transparent text-slate-300 font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  Back to Standard Logon
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="pt-1">
+                  <Button
+                    type="button"
+                    onClick={() => { setIsRootAccess(true); setErrorMsg(""); setPassword(""); }}
+                    disabled={isAuthenticating}
+                    className="w-full py-3.5 border border-red-500/30 hover:border-red-500 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <Shield className="h-4 w-4 text-red-400 animate-pulse" />
+                    System Root Admin Access
+                  </Button>
+                </div>
 
-            <div className="flex justify-between items-center text-xs font-mono font-bold pt-2 border-t border-white/5">
-              <button 
-                type="button" 
-                onClick={() => { setErrorMsg(""); setMode("signup"); }}
-                className="text-cyan-400 hover:text-cyan-300 transition-all flex items-center gap-0.5"
-              >
-                <Plus className="h-3.5 w-3.5" /> Request Sign Up
-              </button>
-            </div>
+                <div className="flex justify-between items-center text-xs font-mono font-bold pt-2 border-t border-white/5">
+                  <button 
+                    type="button" 
+                    onClick={() => { setErrorMsg(""); setMode("signup"); }}
+                    className="text-cyan-400 hover:text-cyan-300 transition-all flex items-center gap-0.5"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Request Sign Up
+                  </button>
+                </div>
+              </>
+            )}
           </>
         )}
 
