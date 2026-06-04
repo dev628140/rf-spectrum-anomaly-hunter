@@ -75,7 +75,7 @@ def get_current_rf():
 
     return {
         "status": "OK",
-        "window": current[::2]
+        "window": current.get("spectrum", [])[::2]
     }
 
 
