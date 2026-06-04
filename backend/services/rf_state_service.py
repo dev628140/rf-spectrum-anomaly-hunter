@@ -43,7 +43,7 @@ class RFStateService:
         self.current_window = np.nan_to_num(self.current_window, nan=-100.0, posinf=-100.0, neginf=-100.0)
         return self.current_window
 
-    def update(self, window):
+    def update(self, window, latest_max_dbm=None):
 
         if window is None:
             return
@@ -206,7 +206,8 @@ class RFStateService:
                 "min_power": round(min_power, 3),
                 "dynamic_range": round(dynamic_range, 3),
                 "occupancy": round(occupancy, 4),
-                "dominant_frequency": round(dominant_freq, 3)
+                "dominant_frequency": round(dominant_freq, 3),
+                "mqtt_max_dbm": round(latest_max_dbm, 3) if latest_max_dbm is not None else None
             },
             "explainability": {
                 "confidence": 94.2,

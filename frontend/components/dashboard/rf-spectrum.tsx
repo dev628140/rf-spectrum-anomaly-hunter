@@ -180,8 +180,11 @@ export function RFSpectrum() {
       <div className="mt-3 grid grid-cols-3 gap-3 shrink-0">
         {/* PEAK */}
         <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/[0.03] p-3 shadow-[0_0_10px_rgba(6,182,212,0.02)]">
-          <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
-            Peak Power
+          <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider flex justify-between">
+            <span>Peak Power</span>
+            {metrics?.mqtt_max_dbm !== undefined && metrics?.mqtt_max_dbm !== null && (
+              <span className="text-cyan-400 font-bold">TX: {metrics.mqtt_max_dbm.toFixed(2)} dBm</span>
+            )}
           </div>
           <div className="mt-0.5 text-sm font-black text-cyan-300 font-mono">
             {peak.toFixed(2)} <span className="text-[10px] text-slate-400 font-semibold font-sans">dBm</span>

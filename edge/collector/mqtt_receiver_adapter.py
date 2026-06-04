@@ -17,6 +17,7 @@ class MQTTReceiverAdapter:
         self.buffer = collections.deque(maxlen=64)
         self.client = None
         self.connected = False
+        self.latest_max_dbm = -100.0
         
         import random
         unique_client_id = f"{MQTT_CLIENT_ID}-recv-{random.randint(10000, 99999)}"
@@ -69,6 +70,12 @@ class MQTTReceiverAdapter:
     def _on_message(self, client, userdata, msg):
         try:
             payload = json.loads(msg.payload.decode("utf-8"))
+            
+            # Capture raw max dbm from the payload
+            max_dbm = payload.get("max_dbm")
+            if max_dbm is not None:
+                self.latest_max_dbm = float(max_dbm)
+                
             raw_spectrum = payload.get("raw_spectrum")
             if raw_spectrum:
                 sweep = np.array(raw_spectrum, dtype=np.float32)
@@ -119,6 +126,9 @@ class MQTTReceiverAdapter:
             f"max={window.max():.4f}"
         )
         return window.astype(np.float32)
+        
+    def get_latest_max_dbm(self):
+        return self.latest_max_dbm
         
     def shutdown(self):
         if self.client:

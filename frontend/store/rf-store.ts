@@ -17,6 +17,7 @@ type RFPayload = {
       occupancy: number;
       dynamic_range: number;
       dominant_frequency?: number;
+      mqtt_max_dbm?: number;
     };
   };
   status: {

@@ -97,8 +97,14 @@ class EdgeRuntime:
                 self.adapter.get_window()
             )
 
+            # Fetch latest raw max dbm from the adapter if supported (e.g. MQTT mode)
+            latest_max_dbm = None
+            if hasattr(self.adapter, "get_latest_max_dbm"):
+                latest_max_dbm = self.adapter.get_latest_max_dbm()
+
             rf_state_service.update(
-                window
+                window,
+                latest_max_dbm=latest_max_dbm
             )
 
         except Exception as e:
