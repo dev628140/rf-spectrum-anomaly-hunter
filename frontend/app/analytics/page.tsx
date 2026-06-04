@@ -14,7 +14,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full">
-      {!hasAccess && <RestrictedOverlay message="Access to RF analytics console requires specific clearance." />}
+      {!hasAccess && <RestrictedOverlay message="Access to RF analytics console requires specific clearance." featureKey="analytics" />}
       <AnalyticsCards
         analytics={analytics.data}
         historyMetrics={historyMetrics.data}

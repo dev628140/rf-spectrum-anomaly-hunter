@@ -66,7 +66,7 @@ export default function AlertsPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full">
-      {!hasAccess && <RestrictedOverlay message="Access to threat alerts center requires specific clearance." />}
+      {!hasAccess && <RestrictedOverlay message="Access to threat alerts center requires specific clearance." featureKey="alerts" />}
       <div className="space-y-6">
           
           {/* Dashboard Telemetry Counters */}

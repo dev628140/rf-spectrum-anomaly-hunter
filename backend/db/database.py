@@ -4,6 +4,10 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
+# Standardize postgres:// to postgresql:// for SQLAlchemy compatibility
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # Robust fallback to SQLite if PostgreSQL fails or is not available after retries
 engine = None
 if "postgresql" in DATABASE_URL:
@@ -43,7 +47,7 @@ Base = declarative_base()
 
 # Auto-create all tables
 try:
-    from backend.db.models.schema import Incident, AlertLog, RFMetric, ModelSwitch, Operator
+    from backend.db.models.schema import Incident, AlertLog, RFMetric, ModelSwitch, Operator, AccessRequest
     Base.metadata.create_all(bind=engine)
     print("[DATABASE] All tables verified/created successfully.")
 except Exception as table_err:

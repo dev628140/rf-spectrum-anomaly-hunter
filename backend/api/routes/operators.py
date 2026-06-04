@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from backend.db.db_service import db_service
 from backend.db.database import SessionLocal
-from backend.db.models.schema import AlertLog, Operator as DBOperator
+from backend.db.models.schema import AlertLog, Operator as DBOperator, AccessRequest
 
 router = APIRouter()
 
@@ -184,5 +184,153 @@ def get_audits(limit: int = 50, x_role: str = Header(default="guest")):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+class AccessRequestCreate(BaseModel):
+    username: str
+    requested_feature: str
+
+
+class AccessRequestUpdate(BaseModel):
+    status: str  # APPROVED or DENIED
+
+
+@router.get("/api/system/access-requests")
+def get_access_requests(x_role: str = Header(default="guest")):
+    if x_role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden: Admin clearance required.")
+    try:
+        reqs = db_service.get_all_access_requests()
+        return {
+            "status": "SUCCESS",
+            "data": [
+                {
+                    "id": r.id,
+                    "timestamp": str(r.timestamp),
+                    "username": r.username,
+                    "requested_feature": r.requested_feature,
+                    "status": r.status
+                }
+                for r in reqs
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/api/system/access-requests")
+def create_access_request(payload: AccessRequestCreate):
+    db = SessionLocal()
+    try:
+        # Verify operator exists
+        op = db.query(DBOperator).filter(DBOperator.username == payload.username.strip()).first()
+        if not op:
+            raise HTTPException(status_code=404, detail="Operator not found.")
+
+        # Check if they already have this feature in their scope
+        scopes = op.scope.split(",") if op.scope else []
+        if payload.requested_feature in scopes:
+            raise HTTPException(status_code=400, detail="Feature already cleared/permitted for this account.")
+
+        # Check if there is already a pending request for this feature
+        existing = db.query(AccessRequest).filter(
+            AccessRequest.username == payload.username.strip(),
+            AccessRequest.requested_feature == payload.requested_feature,
+            AccessRequest.status == "PENDING"
+        ).first()
+
+        if existing:
+            return {
+                "status": "SUCCESS",
+                "message": "Access request already pending for this feature.",
+                "data": {
+                    "id": existing.id,
+                    "username": existing.username,
+                    "requested_feature": existing.requested_feature,
+                    "status": existing.status
+                }
+            }
+
+        # Create new request
+        req = db_service.create_access_request(
+            username=payload.username.strip(),
+            requested_feature=payload.requested_feature
+        )
+
+        # Create audit log
+        db_service.create_alert_log(
+            channel="AUDIT",
+            status="WARNING",
+            message=f"Operator '{op.name}' requested clearance for feature: '{payload.requested_feature}'."
+        )
+
+        return {
+            "status": "SUCCESS",
+            "message": "Access request submitted successfully.",
+            "data": {
+                "id": req.id,
+                "username": req.username,
+                "requested_feature": req.requested_feature,
+                "status": req.status
+            }
+        }
+    finally:
+        db.close()
+
+
+@router.put("/api/system/access-requests/{request_id}")
+def update_access_request(request_id: int, payload: AccessRequestUpdate, x_role: str = Header(default="guest")):
+    if x_role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden: Admin clearance required.")
+    
+    db = SessionLocal()
+    try:
+        req = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
+        if not req:
+            raise HTTPException(status_code=404, detail="Access request not found.")
+
+        if req.status != "PENDING":
+            raise HTTPException(status_code=400, detail="Access request already processed.")
+
+        # Update status
+        req.status = payload.status.upper()
+        
+        # If approved, add feature to operator scope
+        if req.status == "APPROVED":
+            op = db.query(DBOperator).filter(DBOperator.username == req.username).first()
+            if op:
+                scopes = op.scope.split(",") if op.scope else []
+                if req.requested_feature not in scopes:
+                    scopes.append(req.requested_feature)
+                    op.scope = ",".join(scopes)
+                db.commit()
+                
+                # Log audit log
+                db_service.create_alert_log(
+                    channel="AUDIT",
+                    status="SUCCESS",
+                    message=f"Admin approved clearance for '{req.username}' to access '{req.requested_feature}'."
+                )
+        else:
+            # Log audit log
+            db_service.create_alert_log(
+                channel="AUDIT",
+                status="SUCCESS",
+                message=f"Admin denied clearance for '{req.username}' to access '{req.requested_feature}'."
+            )
+
+        db.commit()
+        return {
+            "status": "SUCCESS",
+            "message": f"Access request successfully {req.status.lower()}.",
+            "data": {
+                "id": req.id,
+                "username": req.username,
+                "requested_feature": req.requested_feature,
+                "status": req.status
+            }
+        }
     finally:
         db.close()

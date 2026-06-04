@@ -222,7 +222,7 @@ export default function HistoryPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full flex flex-col gap-6">
-      {!hasAccess && <RestrictedOverlay message="Forensic replay timeline analysis is locked under current access scope." />}
+      {!hasAccess && <RestrictedOverlay message="Forensic replay timeline analysis is locked under current access scope." featureKey="history" />}
       {/* Forensic Playback Controls Toolbar */}
           <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_40px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">

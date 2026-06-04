@@ -20,7 +20,7 @@ export default function HomePage() {
  
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full">
-      {!hasAccess && <RestrictedOverlay message="Live RF telemetry monitoring requires specific clearance." />}
+      {!hasAccess && <RestrictedOverlay message="Live RF telemetry monitoring requires specific clearance." featureKey="live" />}
       <div className="space-y-6">
       {/* Telemetry Charts: FFT & Spectrogram Heatmap (Symmetric Height 460px) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">

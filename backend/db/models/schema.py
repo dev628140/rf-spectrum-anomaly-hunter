@@ -72,4 +72,14 @@ class Operator(Base):
     color = Column(String(200), nullable=True)
     scope = Column(Text, nullable=True)
     username = Column(String(100), unique=True, nullable=True)
-    password = Column(String(200), nullable=True)
+    password = Column(String(200), nullable=True)
+
+
+class AccessRequest(Base):
+    __tablename__ = "access_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    username = Column(String(100), nullable=False)
+    requested_feature = Column(String(100), nullable=False)
+    status = Column(String(50), default="PENDING")

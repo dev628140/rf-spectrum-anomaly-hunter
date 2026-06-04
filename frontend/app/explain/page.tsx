@@ -304,7 +304,7 @@ export default function ExplainPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full">
-      {!hasAccess && <RestrictedOverlay message="Access to Explainable AI details is locked under current access scope." />}
+      {!hasAccess && <RestrictedOverlay message="Access to Explainable AI details is locked under current access scope." featureKey="explain" />}
       <div className="space-y-6">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             

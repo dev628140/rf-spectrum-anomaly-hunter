@@ -11,6 +11,15 @@ def get_adapter():
     elif MODE == "replay":
         return ReplayAdapter(REPLAY_DATASET_PATH)
 
+    elif MODE == "mqtt_live":
+        try:
+            from edge.collector.mqtt_receiver_adapter import MQTTReceiverAdapter
+            return MQTTReceiverAdapter()
+        except Exception as e:
+            print(f"[WARN] MQTT receiver adapter unavailable: {e}")
+            print("[WARN] Falling back to simulation mode.")
+            return SimulationAdapter()
+
     elif MODE == "rtl_live":
         try:
             return RTLAdapter()

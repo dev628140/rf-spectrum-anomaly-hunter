@@ -5,15 +5,53 @@ import LoginPage from "@/components/login-page";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 export function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isInitialized, initialize } = useAuthStore();
+  const { user, isAuthenticated, isInitialized, initialize, updateUserLocal } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     initialize();
     setMounted(true);
   }, [initialize]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user || user.role === "guest") return;
+
+    const syncProfile = async () => {
+      try {
+        const res = await api.get("/api/system/operators");
+        if (res.data && res.data.status === "SUCCESS") {
+          const currentOps = res.data.data;
+          const myOp = currentOps.find((o: any) => o.username === user.username);
+          if (myOp) {
+            if (
+              myOp.scope !== user.scope ||
+              myOp.name !== user.name ||
+              myOp.level !== user.level ||
+              myOp.avatar !== user.avatar ||
+              myOp.color !== user.color
+            ) {
+              updateUserLocal({
+                name: myOp.name,
+                scope: myOp.scope,
+                level: myOp.level,
+                avatar: myOp.avatar,
+                color: myOp.color
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to sync operator profile:", err);
+      }
+    };
+
+    syncProfile();
+    const interval = setInterval(syncProfile, 10000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, user?.username, user?.scope, user?.name, user?.level, user?.avatar, user?.color, updateUserLocal]);
 
   if (!mounted || !isInitialized) {
     return (

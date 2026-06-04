@@ -163,8 +163,10 @@ export default function SettingsPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full flex flex-col gap-6">
-      {!hasAccess && <RestrictedOverlay message="System configuration panel is locked under current access scope." />}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      {/* System Settings & Diagnostics Area (Locked if no settings clearance) */}
+      <div className="relative space-y-6">
+        {!hasAccess && <RestrictedOverlay message="System configuration panel is locked under current access scope." featureKey="settings" />}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             
             {/* RF Parameters Card */}
             <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
@@ -460,9 +462,12 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+        </div>
+      </div>
 
-            {/* Operator Profile Security Card */}
-            <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem] xl:col-span-2">
+      {/* Operator Profile Security Card (Always Unlocked) */}
+      <div className="grid grid-cols-1 gap-6">
+        <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem]">
               <CardHeader className="flex flex-row items-center gap-2.5 mb-4">
                 <Shield className="h-6 w-6 text-cyan-300 animate-pulse" />
                 <CardTitle className="text-xl font-bold">Operator Profile Security</CardTitle>

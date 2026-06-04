@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -17,6 +18,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
+import { api } from "@/lib/api";
 
 const items = [
   {
@@ -96,6 +98,27 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuthStore();
   const isGuest = user?.role === "guest";
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== "admin") return;
+
+    const fetchPendingCount = async () => {
+      try {
+        const res = await api.get("/api/system/access-requests");
+        if (res.data && res.data.status === "SUCCESS") {
+          const pending = res.data.data.filter((r: any) => r.status === "PENDING");
+          setPendingCount(pending.length);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pending requests count in sidebar:", err);
+      }
+    };
+
+    fetchPendingCount();
+    const interval = setInterval(fetchPendingCount, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   return (
     <aside
@@ -331,6 +354,12 @@ export function Sidebar() {
 
                     {locked && (
                       <Lock className="h-3.5 w-3.5 text-red-400/80 shrink-0 ml-auto mr-1 animate-pulse" />
+                    )}
+
+                    {item.href === "/users" && user?.role === "admin" && pendingCount > 0 && (
+                      <span className="h-5 px-1.5 min-w-[20px] rounded-full bg-red-500 flex items-center justify-center text-[10px] font-black text-white shrink-0 ml-auto mr-1 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]">
+                        {pendingCount}
+                      </span>
                     )}
                   </div>
                 </Link>

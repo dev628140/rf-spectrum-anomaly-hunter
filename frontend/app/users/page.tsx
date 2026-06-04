@@ -2,7 +2,7 @@
  
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Shield, Key, Plus } from "lucide-react";
+import { Users, Shield, Key, Plus, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { useAuthStore, hasFeatureAccess } from "@/store/auth-store";
@@ -27,6 +27,8 @@ export default function UsersPage() {
   const [operators, setOperators] = useState<any[]>([]);
   const [audits, setAudits] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [accessRequests, setAccessRequests] = useState<any[]>([]);
+  const [isRequestsLoading, setIsRequestsLoading] = useState<boolean>(false);
   const [selectedUserIdx, setSelectedUserIdx] = useState<number>(0);
   const [rotatedToken, setRotatedToken] = useState<string>("");
   const [isRotating, setIsRotating] = useState(false);
@@ -74,9 +76,34 @@ export default function UsersPage() {
     }
   };
 
+  const fetchAccessRequests = async () => {
+    if (user?.role !== "admin") return;
+    try {
+      setIsRequestsLoading(true);
+      const res = await api.get("/api/system/access-requests");
+      if (res.data && res.data.status === "SUCCESS") {
+        setAccessRequests(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to load access requests from DB:", err);
+    } finally {
+      setIsRequestsLoading(false);
+    }
+  };
+
+  const handleProcessRequest = async (requestId: number, status: "APPROVED" | "DENIED") => {
+    try {
+      setErrorMsg("");
+      await api.put(`/api/system/access-requests/${requestId}`, { status });
+      await loadData();
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.detail || `Failed to update request to ${status}.`);
+    }
+  };
+
   const loadData = async () => {
     setIsLoading(true);
-    await Promise.all([fetchOperators(), fetchAudits()]);
+    await Promise.all([fetchOperators(), fetchAudits(), fetchAccessRequests()]);
     setIsLoading(false);
   };
 
@@ -223,7 +250,7 @@ export default function UsersPage() {
  
   return (
     <div className="relative min-h-[calc(100vh-120px)] w-full flex flex-col gap-6">
-      {!hasAccess && <RestrictedOverlay message="Access Governance panel is locked under current access scope." />}
+      {!hasAccess && <RestrictedOverlay message="Access Governance panel is locked under current access scope." featureKey="users" />}
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -247,6 +274,84 @@ export default function UsersPage() {
 
       {/* Core Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        
+        {/* Pending Access Clearance Requests (Admins only) */}
+        {user?.role === "admin" && (
+          <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem] xl:col-span-2 animate-fadeIn">
+            <CardHeader className="mb-4 flex flex-row items-center gap-2">
+              <Shield className="h-6 w-6 text-orange-400 animate-pulse animate-duration-1000" />
+              <CardTitle className="text-lg font-bold text-white">Pending Operator Access Requests</CardTitle>
+              {accessRequests.filter(r => r.status === "PENDING").length > 0 && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 animate-pulse">
+                  {accessRequests.filter(r => r.status === "PENDING").length} Action Required
+                </span>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isRequestsLoading ? (
+                <div className="text-center py-6 text-slate-500 text-sm font-bold animate-pulse">
+                  Loading clearance requests...
+                </div>
+              ) : accessRequests.filter(r => r.status === "PENDING").length === 0 ? (
+                <div className="text-center py-6 text-slate-555 text-xs font-semibold font-mono border border-dashed border-white/5 bg-black/15 rounded-xl">
+                  No pending operator access clearance requests in system queue.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {accessRequests
+                    .filter((r: any) => r.status === "PENDING")
+                    .map((req: any) => {
+                      const feature = PLATFORM_FEATURES.find(f => f.id === req.requested_feature);
+                      const reqDate = new Date(req.timestamp);
+                      const timeStr = isNaN(reqDate.getTime())
+                        ? req.timestamp
+                        : reqDate.toLocaleString();
+                      
+                      return (
+                        <div 
+                          key={req.id}
+                          className="border border-orange-500/20 bg-orange-500/[0.01] rounded-xl p-4.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all duration-300 hover:border-orange-500/40"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-lg border border-orange-500/30 bg-orange-500/10 flex items-center justify-center text-orange-400 font-bold shrink-0">
+                              <Shield className="h-5 w-5" />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="text-sm font-bold text-white">
+                                Operator <span className="text-orange-400 font-mono">@{req.username}</span> requests clearance
+                              </div>
+                              <p className="text-xs text-slate-400 font-medium">
+                                Feature Module: <span className="text-cyan-300 font-bold font-mono text-[10px] tracking-wider px-2 py-0.5 bg-cyan-500/5 border border-cyan-500/20 rounded-md">{feature?.label || req.requested_feature}</span>
+                              </p>
+                              <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
+                                <Clock className="h-3.5 w-3.5 text-slate-500" />
+                                <span>{timeStr}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0 self-end md:self-auto">
+                            <Button
+                              onClick={() => handleProcessRequest(req.id, "DENIED")}
+                              className="h-8 px-4.5 bg-red-500/10 border border-red-500/30 hover:bg-red-500 hover:text-white text-red-400 font-bold text-xs rounded-lg transition-all"
+                            >
+                              Deny Request
+                            </Button>
+                            <Button
+                              onClick={() => handleProcessRequest(req.id, "APPROVED")}
+                              className="h-8 px-4.5 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500 hover:text-black text-emerald-400 hover:font-bold text-xs rounded-lg transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:scale-[1.02]"
+                            >
+                              Approve Clearance
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
         
         {/* Operators Directory */}
         <Card className="p-5 border-cyan-500/10 bg-[#07111f] shadow-[0_0_50px_rgba(0,255,255,0.02)] rounded-[1.5rem] xl:col-span-2">

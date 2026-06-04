@@ -6,7 +6,8 @@ import {
 } from "react";
 
 import {
-  usePathname
+  usePathname,
+  useRouter
 } from "next/navigation";
 
 import { useRFStore } from "@/store/rf-store";
@@ -18,8 +19,10 @@ import {
   Cpu,
   Radio,
   Clock3,
-  Database
+  Database,
+  Bell
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 const pageMeta: Record<
   string,
@@ -65,6 +68,28 @@ const pageMeta: Record<
 export function Topbar() {
   const { user, logout } = useAuthStore();
   const pathname = usePathname();
+  const router = useRouter();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== "admin") return;
+
+    const fetchPendingCount = async () => {
+      try {
+        const res = await api.get("/api/system/access-requests");
+        if (res.data && res.data.status === "SUCCESS") {
+          const pending = res.data.data.filter((r: any) => r.status === "PENDING");
+          setPendingCount(pending.length);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pending requests count in topbar:", err);
+      }
+    };
+
+    fetchPendingCount();
+    const interval = setInterval(fetchPendingCount, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const { rf } = useRFStore();
   const rawStatus = rf.status.state || "NORMAL";
@@ -173,6 +198,20 @@ export function Topbar() {
           </div>
 
           <div className="flex items-center gap-2.5 border-l border-white/10 pl-2.5 sm:pl-3">
+            {user?.role === "admin" && (
+              <button
+                onClick={() => router.push("/users")}
+                className="relative p-2 text-slate-400 hover:text-cyan-400 hover:bg-white/5 rounded-xl transition-all duration-300 flex items-center justify-center shrink-0 border border-white/5 mr-1"
+                title={`${pendingCount} pending operator clearance request(s)`}
+              >
+                <Bell className="h-4.5 w-4.5" />
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] font-black text-white border-2 border-[#040b16] animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]">
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+            )}
             <div className="text-right shrink-0 hidden sm:block">
               <p className="text-[10px] text-slate-300 font-black leading-none">{user?.name || "Guest Operator"}</p>
               <span className={`inline-block text-[8px] font-black tracking-widest font-mono uppercase px-1.5 py-0.5 rounded-full mt-1 border ${

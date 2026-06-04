@@ -4,7 +4,8 @@ from backend.db.models.schema import (
     AlertLog,
     RFMetric,
     ModelSwitch,
-    Operator
+    Operator,
+    AccessRequest
 )
 
 
@@ -331,6 +332,47 @@ class DBService:
         except Exception as seed_err:
             print(f"[DATABASE] Error during seeding operators: {seed_err}")
             db.rollback()
+        finally:
+            db.close()
+
+    def create_access_request(self, username, requested_feature):
+        db = SessionLocal()
+        try:
+            req = AccessRequest(
+                username=username,
+                requested_feature=requested_feature,
+                status="PENDING"
+            )
+            db.add(req)
+            db.commit()
+            db.refresh(req)
+            return req
+        finally:
+            db.close()
+
+    def get_pending_access_requests(self):
+        db = SessionLocal()
+        try:
+            return db.query(AccessRequest).filter(AccessRequest.status == "PENDING").order_by(AccessRequest.id.desc()).all()
+        finally:
+            db.close()
+
+    def get_all_access_requests(self):
+        db = SessionLocal()
+        try:
+            return db.query(AccessRequest).order_by(AccessRequest.id.desc()).all()
+        finally:
+            db.close()
+
+    def update_access_request_status(self, request_id, status):
+        db = SessionLocal()
+        try:
+            req = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
+            if req:
+                req.status = status
+                db.commit()
+                db.refresh(req)
+            return req
         finally:
             db.close()
 
