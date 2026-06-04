@@ -12,8 +12,16 @@ PORT = 1883
 TOPIC = "rf/anomaly/detect"
 
 
-client = mqtt.Client()
+# Initialize MQTT Client with constructor compatibility
+try:
+    client = mqtt.Client(
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION1
+    )
+except AttributeError:
+    client = mqtt.Client()
+
 client.connect(BROKER, PORT, 60)
+client.loop_start()  # Start background thread to service connection
 
 
 def send_images():
@@ -27,7 +35,8 @@ def send_images():
         with open(file_path, "rb") as f:
             encoded = base64.b64encode(f.read()).decode()
 
-        client.publish(TOPIC, encoded)
+        info = client.publish(TOPIC, encoded)
+        info.wait_for_publish()  # Wait until transmission completes
 
         print(f"Sent: {file}")
 
@@ -35,4 +44,8 @@ def send_images():
 
 
 if __name__ == "__main__":
-    send_images()
+    try:
+        send_images()
+    finally:
+        client.loop_stop()
+        client.disconnect()

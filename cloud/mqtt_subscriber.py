@@ -38,38 +38,68 @@ transform = transforms.Compose([
 ])
 
 
+import sys
+
+# Reconfigure stdout to use UTF-8 to prevent UnicodeEncodeError on Windows terminals when printing emojis
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 BROKER = "broker.hivemq.com"
 PORT = 1883
 TOPIC = "rf/anomaly/detect"
 
 
+def on_connect(client, userdata, flags, rc, properties=None):
+    if rc == 0:
+        print("Connected to MQTT broker successfully.")
+        print(f"Subscribing to topic: {TOPIC}")
+        client.subscribe(TOPIC)
+    else:
+        print(f"Connection failed with code: {rc}")
+
+
 def on_message(client, userdata, msg):
+    try:
+        print("\n📡 Message received")
 
-    print("\n📡 Message received")
+        # Decode image
+        data = base64.b64decode(msg.payload)
+        image = Image.open(io.BytesIO(data))
 
-    # Decode image
-    data = base64.b64decode(msg.payload)
-    image = Image.open(io.BytesIO(data))
+        image = transform(image)
+        image = image.unsqueeze(0)
 
-    image = transform(image)
-    image = image.unsqueeze(0)
+        # Run model
+        with torch.no_grad():
+            output = model(image)
+            loss = criterion(output, image)
 
-    # Run model
-    with torch.no_grad():
-        output = model(image)
-        loss = criterion(output, image)
+        score = loss.item()
+        result = "ANOMALY" if score > THRESHOLD else "NORMAL"
 
-    score = loss.item()
-    result = "ANOMALY" if score > THRESHOLD else "NORMAL"
-
-    print(f"Result: {result} | Score: {score}")
+        print(f"Result: {result} | Score: {score}")
+    except Exception as e:
+        print(f"Error processing received message: {e}")
 
 
-client = mqtt.Client()
-client.connect(BROKER, PORT, 60)
+# Initialize MQTT Client with v2.x and v1.x constructor compatibility
+try:
+    client = mqtt.Client(
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION1
+    )
+except AttributeError:
+    client = mqtt.Client()
 
-client.subscribe(TOPIC)
+client.on_connect = on_connect
 client.on_message = on_message
 
-print("🚀 MQTT Subscriber Running...")
-client.loop_forever()
+try:
+    print(f"Connecting to broker: {BROKER}:{PORT}")
+    client.connect(BROKER, PORT, 60)
+    print("🚀 MQTT Subscriber Running...")
+    client.loop_forever()
+except Exception as e:
+    print(f"Failed to start MQTT subscriber: {e}")
