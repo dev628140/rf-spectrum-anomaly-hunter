@@ -44,7 +44,8 @@ async def websocket_live(
                             "mean_power": rf_payload["metrics"].get("mean_power", 0.0),
                             "peak_power": rf_payload["metrics"].get("peak_power", 0.0),
                             "occupancy": rf_payload["metrics"].get("occupancy", 0.0),
-                            "dynamic_range": rf_payload["metrics"].get("dynamic_range", 0.0)
+                            "dynamic_range": rf_payload["metrics"].get("dynamic_range", 0.0),
+                            "mqtt_max_dbm": rf_payload["metrics"].get("mqtt_max_dbm")
                         }
                     },
                     "status": {
