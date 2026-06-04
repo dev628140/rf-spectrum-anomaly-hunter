@@ -73,6 +73,9 @@ class MQTTReceiverAdapter:
             if raw_spectrum:
                 sweep = np.array(raw_spectrum, dtype=np.float32)
                 
+                # Clean invalid values (NaN / Inf) right at ingestion
+                sweep = np.nan_to_num(sweep, nan=-100.0, posinf=-100.0, neginf=-100.0)
+                
                 # Automatically interpolate bin count to 1025 (matching ML model input shape)
                 if len(sweep) != 1025:
                     xp = np.linspace(0, 1, len(sweep))
@@ -105,6 +108,9 @@ class MQTTReceiverAdapter:
                 window = baseline
         else:
             window = np.array(list(self.buffer))
+            
+        # Guarantee no NaNs or Infs leak to model execution
+        window = np.nan_to_num(window, nan=-100.0, posinf=-100.0, neginf=-100.0)
             
         print(
             f"[MQTT-LIVE] Rolling Window Frame: "

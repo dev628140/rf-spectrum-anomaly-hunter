@@ -39,12 +39,17 @@ class RFStateService:
                 # Fallback to simulated baseline
                 self.current_window = -80 + np.random.randn(64, 1025) * 5
 
+        # Safe guard: clean NaNs/Infs before returning
+        self.current_window = np.nan_to_num(self.current_window, nan=-100.0, posinf=-100.0, neginf=-100.0)
         return self.current_window
 
     def update(self, window):
 
         if window is None:
             return
+
+        # Clean NaN/Inf values before saving/processing
+        window = np.nan_to_num(window, nan=-100.0, posinf=-100.0, neginf=-100.0)
 
         self.current_window = window
 
