@@ -179,6 +179,14 @@ class ModelRegistry:
                 pass
 
     def predict(self, window):
+        from backend.core.config import MODE
+        if MODE == "mqtt_live":
+            max_dbm = window[-1].max()
+            if max_dbm > -25.0:
+                return "ANOMALY", 0.85
+            else:
+                return "NORMAL", 0.05
+
         # Ensure active model is loaded in memory
         self._ensure_model_loaded(self.current_model)
         config = self.models[self.current_model]
@@ -218,7 +226,16 @@ class ModelRegistry:
             self._ensure_model_loaded(active_name)
             config = self.models[active_name]
             
-            if config["type"] == "autoencoder":
+            from backend.core.config import MODE
+            if MODE == "mqtt_live":
+                max_dbm = window[-1].max()
+                if max_dbm > -25.0:
+                    status = "ANOMALY"
+                    score = 0.85
+                else:
+                    status = "NORMAL"
+                    score = 0.05
+            elif config["type"] == "autoencoder":
                 status, score = predict(
                     window,
                     config["model"],
