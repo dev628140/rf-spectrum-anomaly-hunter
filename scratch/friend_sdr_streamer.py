@@ -69,7 +69,7 @@ except Exception as e:
 # ==============================================================================
 # SDR ACQUISITION (Scanning 314.5 MHz to 315.5 MHz with 1kHz bin resolution)
 # ==============================================================================
-cmd = ["rtl_power", "-f", "314.5M:315.5M:1k", "-i", "1", "-"]
+cmd = ["rtl_power", "-f", "314.5M:315.5M:1k", "-i", "1", "-g", "30", "-"]
 
 print("\n🚀 Initializing RTL-SDR front-end...", flush=True)
 print(f"⚡ Command: {' '.join(cmd)}\n", flush=True)
