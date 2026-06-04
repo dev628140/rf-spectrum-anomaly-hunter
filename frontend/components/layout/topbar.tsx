@@ -117,54 +117,63 @@ export function Topbar() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <StatusCard
-            icon={<ShieldCheck className={`h-4.5 w-4.5 ${isSecure ? "text-green-400" : "text-red-400"}`} />}
-            label="Threat Status"
-            value={displayStatus}
-            border={isSecure ? "border-green-500/20 bg-green-500/10" : "border-red-500/20 bg-red-500/10"}
-            text={isSecure ? "text-green-300" : "text-red-300"}
-          />
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="hidden sm:block">
+            <StatusCard
+              icon={<ShieldCheck className={`h-4.5 w-4.5 ${isSecure ? "text-green-400" : "text-red-400"}`} />}
+              label="Threat Status"
+              value={displayStatus}
+              border={isSecure ? "border-green-500/20 bg-green-500/10" : "border-red-500/20 bg-red-500/10"}
+              text={isSecure ? "text-green-300" : "text-red-300"}
+            />
+          </div>
 
-          <StatusCard
-            icon={<Cpu className="h-4.5 w-4.5 text-cyan-400" />}
-            label="Active Model"
-            value={activeModel}
-            border="border-cyan-500/20 bg-cyan-500/10"
-            text="text-cyan-300"
-          />
+          <div className="hidden md:block">
+            <StatusCard
+              icon={<Cpu className="h-4.5 w-4.5 text-cyan-400" />}
+              label="Active Model"
+              value={activeModel}
+              border="border-cyan-500/20 bg-cyan-500/10"
+              text="text-cyan-300"
+            />
+          </div>
 
-          <StatusCard
-            icon={<Radio className={`h-4.5 w-4.5 ${hasTelemetry ? "text-purple-400 animate-pulse" : "text-slate-500"}`} />}
-            label="RF Stream"
-            value={rfStreamState}
-            border={hasTelemetry ? "border-purple-500/20 bg-purple-500/10" : "border-slate-500/20 bg-slate-500/10"}
-            text={hasTelemetry ? "text-purple-300" : "text-slate-300"}
-          />
+          <div className="hidden lg:block">
+            <StatusCard
+              icon={<Radio className={`h-4.5 w-4.5 ${hasTelemetry ? "text-purple-400 animate-pulse" : "text-slate-500"}`} />}
+              label="RF Stream"
+              value={rfStreamState}
+              border={hasTelemetry ? "border-purple-500/20 bg-purple-500/10" : "border-slate-500/20 bg-slate-500/10"}
+              text={hasTelemetry ? "text-purple-300" : "text-slate-300"}
+            />
+          </div>
 
-          <StatusCard
-            icon={<Database className={`h-4.5 w-4.5 ${hasTelemetry ? "text-orange-400" : "text-slate-500"}`} />}
-            label="Backend"
-            value={backendState}
-            border={hasTelemetry ? "border-orange-500/20 bg-orange-500/10" : "border-slate-500/20 bg-slate-500/10"}
-            text={hasTelemetry ? "text-orange-300" : "text-slate-300"}
-          />
+          <div className="hidden xl:block">
+            <StatusCard
+              icon={<Database className={`h-4.5 w-4.5 ${hasTelemetry ? "text-orange-400" : "text-slate-500"}`} />}
+              label="Backend"
+              value={backendState}
+              border={hasTelemetry ? "border-orange-500/20 bg-orange-500/10" : "border-slate-500/20 bg-slate-500/10"}
+              text={hasTelemetry ? "text-orange-300" : "text-slate-300"}
+            />
+          </div>
 
-          <div className="rounded-[16px] border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 min-w-[130px]">
-            <div className="flex items-center gap-2.5">
-              <Clock3 className="h-4.5 w-4.5 text-blue-400" />
-              <div>
-                <p className="text-[0.65rem] text-slate-400 leading-none">System Time</p>
-                <p className="mt-0.5 text-[0.92rem] font-black text-blue-300 leading-none">
-                  {mounted ? currentTime : "--:--:--"}
-                </p>
+          <div className="hidden lg:block">
+            <div className="rounded-[16px] border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 min-w-[130px]">
+              <div className="flex items-center gap-2.5">
+                <Clock3 className="h-4.5 w-4.5 text-blue-400" />
+                <div>
+                  <p className="text-[0.65rem] text-slate-400 leading-none">System Time</p>
+                  <p className="mt-0.5 text-[0.92rem] font-black text-blue-300 leading-none">
+                    {mounted ? currentTime : "--:--:--"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* User profile & Log out button */}
-          <div className="flex items-center gap-3 border-l border-white/10 pl-3">
-            <div className="text-right shrink-0">
+          <div className="flex items-center gap-2.5 border-l border-white/10 pl-2.5 sm:pl-3">
+            <div className="text-right shrink-0 hidden sm:block">
               <p className="text-[10px] text-slate-300 font-black leading-none">{user?.name || "Guest Operator"}</p>
               <span className={`inline-block text-[8px] font-black tracking-widest font-mono uppercase px-1.5 py-0.5 rounded-full mt-1 border ${
                 user?.role === "admin" 
