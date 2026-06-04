@@ -38,7 +38,8 @@ def get_operators(x_role: str = Header(default="guest")):
                     "status": op.status,
                     "avatar": op.avatar,
                     "color": op.color,
-                    "scope": op.scope
+                    "scope": op.scope,
+                    "username": op.username
                 }
                 for op in operators
             ]
@@ -76,7 +77,8 @@ def create_operator(payload: OperatorCreate, x_role: str = Header(default="guest
                 "status": op.status,
                 "avatar": op.avatar,
                 "color": op.color,
-                "scope": op.scope
+                "scope": op.scope,
+                "username": op.username
             }
         }
     except Exception as e:
@@ -115,7 +117,8 @@ def update_operator(operator_id: int, payload: OperatorUpdate, x_role: str = Hea
                 "status": op.status,
                 "avatar": op.avatar,
                 "color": op.color,
-                "scope": op.scope
+                "scope": op.scope,
+                "username": op.username
             }
         }
     except HTTPException as he:

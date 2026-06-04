@@ -20,7 +20,7 @@ const PLATFORM_FEATURES = [
 ];
 
 export default function UsersPage() {
-  const { user } = useAuthStore();
+  const { user, updateUserLocal } = useAuthStore();
   const hasAccess = hasFeatureAccess(user, "users");
   const isUser = user?.role === "user";
 
@@ -138,13 +138,27 @@ export default function UsersPage() {
     setIsUpdating(true);
     setErrorMsg("");
     try {
-      await api.put(`/api/system/operators/${modOperator.id}`, {
+      const res = await api.put(`/api/system/operators/${modOperator.id}`, {
         name: modName,
         role: modRole,
         level: modLevel,
         status: modStatus,
         scope: modScope
       });
+      
+      if (user && res.data && res.data.status === "SUCCESS") {
+        const updatedOp = res.data.data;
+        if (user.username === updatedOp.username) {
+          updateUserLocal({
+            name: updatedOp.name,
+            level: updatedOp.level,
+            avatar: updatedOp.avatar,
+            color: updatedOp.color,
+            scope: updatedOp.scope
+          });
+        }
+      }
+      
       setIsModifyOpen(false);
       await loadData();
     } catch (err: any) {
