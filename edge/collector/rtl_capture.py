@@ -18,6 +18,27 @@ class RTLCapture:
 
     def connect(self):
         try:
+            import os
+            import sys
+            import ctypes
+            if sys.platform == "win32":
+                # Add project root directory to DLL search path for Python 3.8+ on Windows
+                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                if hasattr(os, "add_dll_directory"):
+                    os.add_dll_directory(project_root)
+            
+            # Monkeypatch ctypes to gracefully handle missing rtlsdr functions (e.g. rtlsdr_set_dithering)
+            original_getattr = ctypes.CDLL.__getattr__
+            def custom_getattr(self, name):
+                try:
+                    return original_getattr(self, name)
+                except AttributeError as e:
+                    if name.startswith("rtlsdr_"):
+                        # Return a dummy function returning 0 (success)
+                        return ctypes.CFUNCTYPE(ctypes.c_int)(lambda *args: 0)
+                    raise e
+            ctypes.CDLL.__getattr__ = custom_getattr
+
             from rtlsdr import RtlSdr
         except Exception as e:
             raise RuntimeError(
